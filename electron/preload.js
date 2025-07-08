@@ -1,4 +1,6 @@
-import { contextBridge, ipcRenderer } from 'electron';
+const { contextBridge, ipcRenderer } = require('electron');
+
+console.log('[PRELOAD] running');
 
 // Example of exposing IPC safely
 contextBridge.exposeInMainWorld('electron', {

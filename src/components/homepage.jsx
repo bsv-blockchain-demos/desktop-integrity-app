@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react'
 
-function Homepage({ handleSaveToBlockchain, files, setFiles, setFilePath, setDroppedFileContent, handleCancel }) {
+function Homepage({ handleSaveToBlockchain, files, setFiles, fileContent, setFilePath, setFileContent, handleCancel }) {
+  // Let user select files with dialog
   const handleSelectFiles = async () => {
     if (window.electronAPI?.openDialog) {
       const selected = await window.electronAPI.openDialog();
       if (selected && selected.length > 0) {
+        console.log("selected", selected);
         setFiles(selected);
       }
     } else {
@@ -12,15 +14,16 @@ function Homepage({ handleSaveToBlockchain, files, setFiles, setFilePath, setDro
     }
   };
 
+  // Let user drag and drop files
   const handleDrop = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     const droppedFile = e.dataTransfer.files[0];
+    console.log("droppedFile", droppedFile);
     if (droppedFile && droppedFile.path) {
-      const content = await window.electronAPI.readFile(droppedFile.path);
       setFilePath(droppedFile.path);
-      setDroppedFileContent(content);
+      setFiles(droppedFile.path);
     }
   }, []);
 
@@ -55,8 +58,34 @@ function Homepage({ handleSaveToBlockchain, files, setFiles, setFilePath, setDro
           </div>
         </div>
       ) : (
+
         <>
-          <pre>{JSON.stringify(files)}</pre>
+          {files.length !== 0 && (
+            <div style={{ marginTop: '2rem' }}>
+              <h3>Preview:</h3>
+              {fileContent.type === 'image' ? (
+                <img
+                  src={fileContent.content}
+                  alt="Preview"
+                  style={{ maxWidth: '400px', borderRadius: '10px' }}
+                />
+              ) : (
+                <pre
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    background: '#f0f0f0',
+                    padding: '1rem',
+                    borderRadius: '6px',
+                    maxHeight: '300px',
+                    overflow: 'auto',
+                  }}
+                >
+                  {fileContent.content}
+                </pre>
+              )}
+            </div>
+          )}
+
           <div>
             <button onClick={handleCancel}>Cancel</button>
             <button onClick={handleSaveToBlockchain}>Save to blockchain</button>

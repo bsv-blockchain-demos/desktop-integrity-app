@@ -10,43 +10,30 @@ import { WalletProvider } from '../context/walletContext.jsx'
 function App() {
   const [files, setFiles] = useState([]);
   const [fileContent, setFileContent] = useState('');
-  const [droppedFiles, setDroppedFiles] = useState([]);
-  const [droppedFileContent, setDroppedFileContent] = useState('');
   const [filePath, setFilePath] = useState('');
 
+  // Get file content
   useEffect(() => {
     async function fetchContent() {
         if (files.length !== 0) {
-            const content = await window.electronAPI.readFile(files[0]);
+            const content = await window.electronAPI.readFile(files);
+            console.log("content", content);
             setFileContent(content);
         }
     }
     fetchContent();
   }, [files]);
 
-  useEffect(() => {
-    async function fetchContent() {
-        if (droppedFiles.length !== 0) {
-            const content = await window.electronAPI.readFile(droppedFiles[0]);
-            setDroppedFileContent(content);
-        }
-    }
-    fetchContent();
-  }, [droppedFiles]);
-
   const handleSaveToBlockchain = () => {
-    // TODO: Save to blockchain
+    // TODO: Save to blockchain, hash file content
     // TODO: Create file in logs folder
   };
 
+  // Reset file content on cancel button click
   const handleCancel = () => {
     if (files.length !== 0) {
         setFiles([]);
         setFileContent('');
-    }
-    if (droppedFiles.length !== 0) {
-        setDroppedFiles([]);
-        setDroppedFileContent('');
     }
     setFilePath('');
   };
@@ -62,9 +49,9 @@ function App() {
             setFiles={setFiles}
             filePath={filePath}
             setFilePath={setFilePath}
-            droppedFiles={droppedFiles}
-            setDroppedFiles={setDroppedFiles}
             handleCancel={handleCancel}
+            fileContent={fileContent}
+            setFileContent={setFileContent}
           />} />
           <Route path="/logs" element={<Logs />} />
           <Route path="/status" element={<Status />} />

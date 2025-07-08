@@ -5,6 +5,7 @@ function Navbar() {
     const { wallet, initializeWallet } = useWallet();
     const [loading, setLoading] = useState(false);
 
+    // Button to let users manually reconnect wallet
     const handleConnectWallet = async () => {
         if (!wallet) {
             setLoading(true);

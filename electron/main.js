@@ -10,8 +10,8 @@ console.log("__dirname", __dirname);
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 720,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -29,13 +29,24 @@ ipcMain.handle('dialog:open', async () => {
   return result.filePaths[0];
 });
 
-ipcMain.handle('file:read', async (_, filePath) => {
+// Read file (image or text)
+ipcMain.handle('file:read', async (event, filePath) => {
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return content;
+    const ext = path.extname(filePath).toLowerCase();
+    const buffer = fs.readFileSync(filePath);
+
+    const isImage = ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext);
+    if (isImage) {
+      const mime = ext === '.jpg' ? 'jpeg' : ext.replace('.', '');
+      const base64 = buffer.toString('base64');
+      return { type: 'image', content: `data:image/${mime};base64,${base64}` };
+    } else {
+      const text = buffer.toString('utf8');
+      return { type: 'text', content: text };
+    }
   } catch (err) {
     console.error('Failed to read file:', err);
-    return null;
+    throw err;
   }
 });
 

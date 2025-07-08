@@ -1,5 +1,5 @@
 import { WalletClient, Utils, Random } from '@bsv/sdk';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
 
 export async function checkWalletConnection(wallet) {
     const isConnected = await wallet.isAuthenticated();
@@ -18,34 +18,35 @@ export function WalletProvider({ children }) {
     const [derivedPubKey, setDerivedPubKey] = useState(null);
     const [keyID, setKeyID] = useState(Utils.toHex(Random(8))); // Only run once
 
-    const initializeWallet = async () => {
+    const initializeWallet = useCallback(async () => {
         try {
-            const wallet = new WalletClient('auto', 'localhost:3000'); // TODO: Replace with Metanet app
-            const isConnected = await wallet.isAuthenticated();
+            const newWallet = new WalletClient('auto', 'localhost:3000');
 
-            if (isConnected) {
-                setWallet(wallet);
-
-                const pubKey = await wallet.getPublicKey({ identityKey: true });
-                setPubKey(pubKey);
-
-                const derivedPubKey = await wallet.getPublicKey({
-                    protocolID: [0, 'slackthreads'],
-                    keyID
-                });
-                setDerivedPubKey(derivedPubKey);
-            } else {
+            const isConnected = await newWallet.isAuthenticated();
+            if (!isConnected) {
                 console.error('Wallet not authenticated');
+                return;
             }
+
+            const identityKey = await newWallet.getPublicKey({ identityKey: true });
+            const derivedKey = await newWallet.getPublicKey({
+                protocolID: [0, 'slackthreads'],
+                keyID,
+            });
+
+            // Only update state once everything is fetched
+            setWallet(newWallet);
+            setPubKey(identityKey);
+            setDerivedPubKey(derivedKey);
         } catch (error) {
             console.error('Failed to initialize wallet:', error);
         }
-    };
+    }, [keyID]);
 
-    // Try auto-connect on load
+    // Run once on mount
     useEffect(() => {
         initializeWallet();
-    }, []);
+    }, [initializeWallet]);
 
     return (
         <WalletContext.Provider

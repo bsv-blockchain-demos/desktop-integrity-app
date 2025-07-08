@@ -1,5 +1,6 @@
 import { WalletClient, Utils, Random } from '@bsv/sdk';
 import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
+import useClearLocalStorageOnQuit from '../hooks/clearStorage';
 
 export async function checkWalletConnection(wallet) {
     const isConnected = await wallet.isAuthenticated();
@@ -16,7 +17,16 @@ export function WalletProvider({ children }) {
     const [wallet, setWallet] = useState(null);
     const [pubKey, setPubKey] = useState(null);
     const [derivedPubKey, setDerivedPubKey] = useState(null);
-    const [keyID, setKeyID] = useState(Utils.toHex(Random(8))); // Only run once
+    const [keyID, setKeyID] = useState(() => {
+        const existing = localStorage.getItem('keyID');
+        if (existing) return existing;
+        const newKey = Utils.toHex(Random(8));
+        localStorage.setItem('keyID', newKey);
+        return newKey;
+    });
+    console.log("keyID", keyID);
+
+    useClearLocalStorageOnQuit();
 
     const initializeWallet = useCallback(async () => {
         try {

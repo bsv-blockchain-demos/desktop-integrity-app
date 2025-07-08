@@ -34,15 +34,16 @@ ipcMain.handle('file:read', async (event, filePath) => {
   try {
     const ext = path.extname(filePath).toLowerCase();
     const buffer = fs.readFileSync(filePath);
+    const name = path.basename(filePath);
 
     const isImage = ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext);
     if (isImage) {
       const mime = ext === '.jpg' ? 'jpeg' : ext.replace('.', '');
       const base64 = buffer.toString('base64');
-      return { type: 'image', content: `data:image/${mime};base64,${base64}` };
+      return { type: 'image', content: `data:image/${mime};base64,${base64}`, name };
     } else {
       const text = buffer.toString('utf8');
-      return { type: 'text', content: text };
+      return { type: 'text', content: text, name };
     }
   } catch (err) {
     console.error('Failed to read file:', err);
@@ -52,6 +53,12 @@ ipcMain.handle('file:read', async (event, filePath) => {
 
 app.whenReady().then(() => {
   createWindow();
+
+  app.on('before-quit', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('app-quit'); // send message to renderer
+    }
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

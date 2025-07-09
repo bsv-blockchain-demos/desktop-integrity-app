@@ -43,6 +43,8 @@ function App() {
       return;
     }
 
+    // TODO: Save to blockchain, hash file content
+
     // Get file stats
     const stats = await window.electronAPI.getFileStats(files);
     console.log("stats", stats);
@@ -54,7 +56,6 @@ function App() {
     localStorage.setItem('savedFiles', JSON.stringify(updated));
     setSavedFiles(updated);
 
-    // TODO: Save to blockchain, hash file content
     // Dummy values to test Logs
     const txID = 'txID';
     const satoshis = 101;

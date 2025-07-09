@@ -1,6 +1,7 @@
 import { WalletClient, Utils, Random } from '@bsv/sdk';
 import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
 import useClearLocalStorageOnQuit from '../hooks/clearStorage';
+import { toast } from 'react-hot-toast';
 
 export async function checkWalletConnection(wallet) {
     const isConnected = await wallet.isAuthenticated();
@@ -48,8 +49,18 @@ export function WalletProvider({ children }) {
             setWallet(newWallet);
             setPubKey(identityKey);
             setDerivedPubKey(derivedKey);
+            toast.success('Wallet connected successfully', {
+                duration: 5000,
+                position: 'top-center',
+                id: 'wallet-connect-success',
+              });
         } catch (error) {
             console.error('Failed to initialize wallet:', error);
+            toast.error('Failed to connect wallet. \nTo save files to blockchain, please open a wallet client.', {
+                duration: 5000,
+                position: 'top-center',
+                id: 'wallet-connect-error',
+              });
         }
     }, [keyID]);
 

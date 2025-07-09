@@ -26,12 +26,16 @@ function App() {
   }, [files]);
 
   const handleSaveToBlockchain = async () => {
+    let fileName = '';
+    let existing = [];
+    let time = '';
+
     try {
       console.log("filePath", filePath);
-      const fileName = filePath.split(/[/\\]/).pop(); // get just the file name
+      fileName = filePath.split(/[/\\]/).pop(); // get just the file name
 
       // Get existing list or initialize
-      const existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
+      existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
 
       if (existing.includes(fileName)) {
         console.log("File already saved");
@@ -52,21 +56,21 @@ function App() {
 
       // Check if file exists in logs already
 
-      const time = new Date().toLocaleString()
+      time = new Date().toLocaleString()
 
       // Get file stats
       const stats = await window.electronAPI.getFileStats(files);
       console.log("stats", stats);
 
       // Add new file name
-      const updated = [...existing, {fileName, status: {txID: 'Creating...', satoshis: 'Calculating...', time}}];
+      const updated = [...existing, { fileName, status: { txID: 'Creating...', satoshis: 'Calculating...', time } }];
 
       // Save back to localStorage
       localStorage.setItem('savedFiles', JSON.stringify(updated));
       setSavedFiles(updated);
 
       // TODO: Save to blockchain, hash file content
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Timer to simulate making TX
 
       // Dummy values to test Logs
       const txID = 'txID';
@@ -113,6 +117,12 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to save file:', error);
+      // Update status failed
+      const failedUpdate = [...existing, { fileName, status: { txID: 'Failed', satoshis: 'Failed', time } }];
+
+      // Save back to localStorage
+      localStorage.setItem('savedFiles', JSON.stringify(failedUpdate));
+      setSavedFiles(failedUpdate);
     }
 
     // Set file content to empty after successful save

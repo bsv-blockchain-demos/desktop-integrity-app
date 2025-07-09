@@ -3,8 +3,9 @@ import './css/App.css'
 import { Routes, Route } from 'react-router-dom'
 import Homepage from './components/homepage'
 import Logs from './components/logs'
-import Status from './components/status'
 import Navbar from './components/navbar'
+import Verify from './components/verify'
+import { toast } from 'react-hot-toast';
 
 function App() {
   const [files, setFiles] = useState([]);
@@ -25,49 +26,78 @@ function App() {
   }, [files]);
 
   const handleSaveToBlockchain = async () => {
-    console.log("filePath", filePath);
-    const fileName = filePath.split(/[/\\]/).pop(); // get just the file name
+    try {
+      console.log("filePath", filePath);
+      const fileName = filePath.split(/[/\\]/).pop(); // get just the file name
 
-    // Get existing list or initialize
-    const existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
+      // Get existing list or initialize
+      const existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
 
-    if (existing.includes(fileName)) {
-      console.log("File already saved");
-      // Show modal to user that file is already saved
-      // Give option to update file
-      if (files.length !== 0) {
-        setFiles([]);
-        setFileContent('');
+      if (existing.includes(fileName)) {
+        console.log("File already saved");
+        // Show modal to user that file is already saved
+        toast.error('File already saved', {
+          duration: 3000,
+          position: 'center',
+          id: 'file-saved-error',
+        });
+        // Give option to update file
+        if (files.length !== 0) {
+          setFiles([]);
+          setFileContent('');
+        }
+        setFilePath('');
+        return;
       }
-      setFilePath('');
-      return;
-    }
 
-    // TODO: Save to blockchain, hash file content
+      // Check if file exists in logs already
 
-    // Get file stats
-    const stats = await window.electronAPI.getFileStats(files);
-    console.log("stats", stats);
+      const time = new Date().toLocaleString()
 
-    // Add new file name
-    const updated = [...existing, fileName];
+      // Get file stats
+      const stats = await window.electronAPI.getFileStats(files);
+      console.log("stats", stats);
 
-    // Save back to localStorage
-    localStorage.setItem('savedFiles', JSON.stringify(updated));
-    setSavedFiles(updated);
+      // Add new file name
+      const updated = [...existing, {fileName, status: {txID: 'Creating...', satoshis: 'Calculating...', time}}];
 
-    // Dummy values to test Logs
-    const txID = 'txID';
-    const satoshis = 101;
-    const EncryptedContent = 'EncryptedContent';
+      // Save back to localStorage
+      localStorage.setItem('savedFiles', JSON.stringify(updated));
+      setSavedFiles(updated);
 
-    // Create file in logs folder
-    const fileCreatedTS = stats.createdTS.replace('T', ' ');
-    const fileModifiedTS = stats.modifiedTS.replace('T', ' ');
+      // TODO: Save to blockchain, hash file content
+      await new Promise(resolve => setTimeout(resolve, 5000));
 
-    const keyID = localStorage.getItem('keyID');
-    const logData = `SavedFile: ${fileName}
-    \nTime: ${new Date().toLocaleString()}
+      // Dummy values to test Logs
+      const txID = 'txID';
+      const satoshis = 101;
+      const EncryptedContent = 'EncryptedContent';
+
+      // Update status
+      const updatedStatus = updated.map((file) => {
+        if (file.fileName === fileName) {
+          return {
+            ...file,
+            status: {
+              txID,
+              satoshis,
+              time,
+            },
+          };
+        }
+        return file;
+      });
+      localStorage.setItem('savedFiles', JSON.stringify(updatedStatus));
+      console.log("updatedStatus", updatedStatus);
+      setSavedFiles(updatedStatus);
+
+      // Create file in logs folder
+      const fileCreatedTS = stats.createdTS.replace('T', ' ');
+      const fileModifiedTS = stats.modifiedTS.replace('T', ' ');
+
+      const keyID = localStorage.getItem('keyID');
+      const logData = `SavedFile: ${fileName}
+    \nTime: ${time}
     \nEncryptedContent:\n${EncryptedContent}
     \nSavedWithKeyID: ${keyID}
     \nTxID: ${txID}
@@ -75,11 +105,14 @@ function App() {
     \nFileCreatedTS: ${fileCreatedTS}
     \nFileModifiedTS: ${fileModifiedTS}`;
 
-    const result = await window.electronAPI.writeLog(fileName, logData);
-    if (result.success) {
-      console.log('Log saved at', result.path);
-    } else {
-      console.error('Failed to save log:', result.error);
+      const result = await window.electronAPI.writeLog(fileName, logData);
+      if (result.success) {
+        console.log('Log saved at', result.path);
+      } else {
+        console.error('Failed to save log:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to save file:', error);
     }
 
     // Set file content to empty after successful save
@@ -121,6 +154,7 @@ function App() {
           savedFiles={savedFiles}
         />} />
         <Route path="/logs" element={<Logs />} />
+        <Route path="/verify" element={<Verify />} />
       </Routes>
     </div>
   )

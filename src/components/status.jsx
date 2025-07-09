@@ -18,10 +18,10 @@ function Status({ savedFiles }) {
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map((file, index) => (
                 <tr key={index}>
-                  <td className="transaction-id">0x{Math.random().toString(16).slice(2, 42)}</td>
-                  <td>{file}</td>
-                  <td>101</td>
-                  <td>{new Date().toISOString().slice(0, 16).replace('T', ' ')}</td>
+                  <td className="transaction-id">{file.status.txID}</td>
+                  <td>{file.fileName}</td>
+                  <td>{file.status.satoshis}</td>
+                  <td>{file.status.time}</td>
                 </tr>
               ))
             ) : (

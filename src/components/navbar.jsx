@@ -19,15 +19,16 @@ function Navbar() {
     return (
         <nav className="navbar">
             <div className="nav-links">
-                <a href="/" className="nav-btn">Home</a>
+                <a href="/" className="nav-btn">Save files</a>
                 <a href="/logs" className="nav-btn">Logs</a>
+                <a href="/verify" className="nav-btn">Verify files</a>
             </div>
             <button
-                className="connect-wallet-btn"
+                className={`connect-wallet-btn ${wallet ? 'connected' : ''}`}
                 onClick={handleConnectWallet}
-                disabled={loading}
+                disabled={loading || wallet}
             >
-                {loading ? 'Connecting...' : 'Connect Wallet'}
+                {loading ? 'Connecting...' : wallet ? 'Wallet Connected' : 'Connect Wallet'}
             </button>
         </nav>
     )

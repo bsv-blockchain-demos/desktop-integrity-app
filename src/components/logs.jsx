@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../css/layout.css';
+import LogContentModal from './logContentModal';
 
 function Logs() {
   const [logs, setLogs] = useState([]);
@@ -66,7 +67,7 @@ function Logs() {
                         className="action-button small-button"
                         onClick={() => handleLogClick(log)}
                       >
-                        {selectedLog === log ? 'Hide' : 'View'}
+                        {selectedLog === log ? 'Hide' : 'View details'}
                       </button>
                     </td>
                   </tr>
@@ -81,10 +82,7 @@ function Logs() {
         </div>
 
         {selectedLog && (
-          <div className="log-content">
-            <h3>Log Content</h3>
-            <pre className="log-pre">{selectedLog.content}</pre>
-          </div>
+          <LogContentModal log={selectedLog} onClose={() => setSelectedLog(null)} />
         )}
       </div>
     </div>

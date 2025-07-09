@@ -43,6 +43,10 @@ function App() {
       return;
     }
 
+    // Get file stats
+    const stats = await window.electronAPI.getFileStats(files);
+    console.log("stats", stats);
+
     // Add new file name
     const updated = [...existing, fileName];
 
@@ -51,9 +55,24 @@ function App() {
     setSavedFiles(updated);
 
     // TODO: Save to blockchain, hash file content
+    // Dummy values to test Logs
+    const txID = 'txID';
+    const satoshis = 101;
+    const EncryptedContent = 'EncryptedContent';
 
     // Create file in logs folder
-    const logData = `Saved file: ${fileName}\nTime: ${new Date().toLocaleString()}\nContent:\n${fileContent}`;
+    const fileCreatedTS = stats.createdTS.replace('T', ' ');
+    const fileModifiedTS = stats.modifiedTS.replace('T', ' ');
+
+    const keyID = localStorage.getItem('keyID');
+    const logData = `SavedFile: ${fileName}
+    \nTime: ${new Date().toLocaleString()}
+    \nEncryptedContent:\n${EncryptedContent}
+    \nSavedWithKeyID: ${keyID}
+    \nTxID: ${txID}
+    \nSatoshis: ${satoshis}
+    \nFileCreatedTS: ${fileCreatedTS}
+    \nFileModifiedTS: ${fileModifiedTS}`;
 
     const result = await window.electronAPI.writeLog(fileName, logData);
     if (result.success) {

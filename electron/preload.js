@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   confirmQuit: () => ipcRenderer.send('confirm-quit'),
   writeLog: (fileName, data) => ipcRenderer.invoke('log:write', fileName, data),
   listLogs: () => ipcRenderer.invoke('logs:list'),
+  getFileStats: (filePath) => ipcRenderer.invoke('file:stats', filePath),
 });

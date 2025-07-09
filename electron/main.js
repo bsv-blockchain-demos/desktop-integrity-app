@@ -73,6 +73,20 @@ ipcMain.handle('logs:list', async () => {
   }
 });
 
+ipcMain.handle('file:stats', async (event, filePath) => {
+  try {
+    const stats = fs.statSync(filePath);
+    return {
+      size: stats.size,
+      modifiedTS: stats.mtime.toISOString(),
+      createdTS: stats.birthtime.toISOString(),
+    };
+  } catch (err) {
+    console.error('Failed to get file stats:', err);
+    return null;
+  }
+});
+
 
 // Read file (image or text)
 ipcMain.handle('file:read', async (event, filePath) => {

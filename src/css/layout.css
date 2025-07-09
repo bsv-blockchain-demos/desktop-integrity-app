@@ -1,0 +1,160 @@
+/* Layout styling for side-by-side blocks */
+.main-container {
+  display: flex;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 70px; /* Space for the navbar */
+  box-sizing: border-box;
+  gap: 20px;
+  height: calc(100vh - 90px); /* Full viewport height minus navbar and padding */
+}
+
+.content-block {
+  flex: 1;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 85%; /* Fill the height of the container */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Add scrolling for overflow content */
+}
+
+.file-picker-block {
+  flex: 1; /* Make the file picker block slightly larger */
+}
+
+.status-block {
+  flex: 1.5;
+}
+
+/* Styling for the file drop area */
+.file-drop-area {
+  padding: 2rem;
+  border: 2px dashed #646cff;
+  border-radius: 10px;
+  text-align: center;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.file-drop-area:hover {
+  border-color: #535bf2;
+  background-color: rgba(100, 108, 255, 0.05);
+}
+
+/* Button styling */
+.action-button {
+  background-color: #646cff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 10px;
+  transition: background-color 0.3s ease;
+}
+
+/* Status table styling */
+.status-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.status-table th {
+  background-color: rgba(100, 108, 255, 0.1);
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e1e1e1;
+  font-weight: 600;
+}
+
+.status-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e1e1e1;
+}
+
+.status-table .transaction-id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-table .empty-row td {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
+
+.action-button:hover {
+  background-color: #535bf2;
+}
+
+.action-button.cancel {
+  background-color: #888;
+}
+
+.action-button.cancel:hover {
+  background-color: #777;
+}
+
+/* File preview area */
+.file-preview {
+  margin-top: 1rem;
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.file-preview pre {
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* Status list styling */
+.status-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-list li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.status-list li:last-child {
+  border-bottom: none;
+}
+
+/* Block headers */
+.block-header {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #fff;
+  border-bottom: 1px solid #3a3a3a;
+  padding-bottom: 0.5rem;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+}

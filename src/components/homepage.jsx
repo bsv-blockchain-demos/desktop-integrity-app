@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import Status from './status';
+import '../css/layout.css';
 
 function Homepage({ handleSaveToBlockchain, files, setFiles, fileContent, setFilePath, setFileContent, handleCancel, savedFiles }) {
   // Let user select files with dialog
@@ -35,12 +36,12 @@ function Homepage({ handleSaveToBlockchain, files, setFiles, fileContent, setFil
   };
 
   return (
-    <>
-      <div>
+    <div className="main-container">
+      <div className="content-block file-picker-block">
         {files.length === 0 ? (
-          <div style={{ padding: '2rem' }}>
-            <h1>File/Folder Picker</h1>
-            <button onClick={handleSelectFiles}>Select Files/Folders</button>
+          <>
+            <h1 className="block-header">File/Folder Picker</h1>
+            <button className="action-button" onClick={handleSelectFiles}>Select Files/Folders</button>
             <ul>
               {files.map((path, index) => (
                 <li key={index}>{path}</li>
@@ -49,57 +50,43 @@ function Homepage({ handleSaveToBlockchain, files, setFiles, fileContent, setFil
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              style={{
-                padding: '2rem',
-                border: '2px dashed #888',
-                borderRadius: '10px',
-                textAlign: 'center',
-                margin: '2rem',
-              }}
+              className="file-drop-area"
             >
               <h2>Drag and Drop a File Here</h2>
             </div>
-          </div>
+          </>
         ) : (
-
           <>
+            <h1 className="block-header">File/Folder Picker</h1>
             {files.length !== 0 && (
-              <div style={{ marginTop: '2rem' }}>
+              <div className="file-preview">
                 <h3>Preview:</h3>
                 {fileContent.type === 'image' ? (
                   <img
                     src={fileContent.content}
                     alt="Preview"
-                    style={{ maxWidth: '400px', borderRadius: '10px' }}
+                    style={{ maxWidth: '100%', borderRadius: '6px' }}
                   />
                 ) : (
-                  <pre
-                    style={{
-                      whiteSpace: 'pre-wrap',
-                      background: '#f0f0f0',
-                      padding: '1rem',
-                      borderRadius: '6px',
-                      maxHeight: '300px',
-                      overflow: 'auto',
-                    }}
-                  >
+                  <pre>
                     {fileContent.content}
                   </pre>
                 )}
               </div>
             )}
 
-            <div>
-              <button onClick={handleCancel}>Cancel</button>
-              <button onClick={handleSaveToBlockchain}>Save to blockchain</button>
+            <div style={{ marginTop: '1rem' }}>
+              <button className="action-button cancel" onClick={handleCancel}>Cancel</button>
+              <button className="action-button" onClick={handleSaveToBlockchain}>Save to blockchain</button>
             </div>
           </>
         )}
       </div>
-      <div>
+      
+      <div className="content-block status-block">
         <Status savedFiles={savedFiles}/>
       </div>
-    </>
+    </div>
   );
 }
 

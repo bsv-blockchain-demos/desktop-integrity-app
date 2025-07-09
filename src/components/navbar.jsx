@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useWallet } from '../../context/walletContext.jsx';
+import '../css/navbar.css';
 
 function Navbar() {
     const { wallet, initializeWallet } = useWallet();
@@ -15,18 +16,21 @@ function Navbar() {
         return;
     };
 
-  return (
-    <div>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/logs">Logs</a></li>
-                <li><a href="/status">Status</a></li>
-                <button onClick={handleConnectWallet} disabled={loading}>Connect Wallet</button>
-            </ul>
+    return (
+        <nav className="navbar">
+            <div className="nav-links">
+                <a href="/" className="nav-btn">Home</a>
+                <a href="/logs" className="nav-btn">Logs</a>
+            </div>
+            <button
+                className="connect-wallet-btn"
+                onClick={handleConnectWallet}
+                disabled={loading}
+            >
+                {loading ? 'Connecting...' : 'Connect Wallet'}
+            </button>
         </nav>
-    </div>
-  )
+    )
 }
 
 export default Navbar;

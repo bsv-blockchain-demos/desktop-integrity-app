@@ -24,8 +24,7 @@ function App() {
     fetchContent();
   }, [files]);
 
-  const handleSaveToBlockchain = () => {
-    // TODO: Save to blockchain, hash file content
+  const handleSaveToBlockchain = async () => {
     console.log("filePath", filePath);
     const fileName = filePath.split(/[/\\]/).pop(); // get just the file name
 
@@ -50,13 +49,32 @@ function App() {
     // Save back to localStorage
     localStorage.setItem('savedFiles', JSON.stringify(updated));
     setSavedFiles(updated);
-    // TODO: Create file in logs folder
+
+    // TODO: Save to blockchain, hash file content
+
+    // Create file in logs folder
+    const logData = `Saved file: ${fileName}\nTime: ${new Date().toLocaleString()}\nContent:\n${fileContent}`;
+
+    const result = await window.electronAPI.writeLog(fileName, logData);
+    if (result.success) {
+      console.log('Log saved at', result.path);
+    } else {
+      console.error('Failed to save log:', result.error);
+    }
+
+    // Set file content to empty after successful save
     if (files.length !== 0) {
       setFiles([]);
       setFileContent('');
     }
     setFilePath('');
   };
+
+  // Get initial saved files from storage
+  useEffect(() => {
+    const savedFiles = JSON.parse(localStorage.getItem('savedFiles')) || [];
+    setSavedFiles(savedFiles);
+  }, []);
 
   // Reset file content on cancel button click
   const handleCancel = () => {

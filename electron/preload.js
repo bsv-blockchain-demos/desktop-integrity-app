@@ -12,4 +12,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readFile: (filePath) => ipcRenderer.invoke('file:read', filePath),
   onAppQuit: (callback) => ipcRenderer.on('app-quit', callback),
   confirmQuit: () => ipcRenderer.send('confirm-quit'),
+  writeLog: (fileName, data) => ipcRenderer.invoke('log:write', fileName, data),
+  listLogs: () => ipcRenderer.invoke('logs:list'),
 });

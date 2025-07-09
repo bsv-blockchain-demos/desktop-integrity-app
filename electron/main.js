@@ -37,6 +37,43 @@ ipcMain.handle('dialog:open', async () => {
   return result.filePaths[0];
 });
 
+ipcMain.handle('log:write', async (event, fileName, logData) => {
+  try {
+    const logsDir = path.resolve(process.cwd(), 'LOGS');
+
+    // Ensure the LOGS folder exists
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir);
+    }
+
+    // Create a unique log file name
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const safeName = fileName.replace(/[<>:"/\\|?*]/g, ''); // Remove bad characters
+    const logFileName = `${safeName}-${timestamp}.txt`;
+
+    const fullPath = path.join(logsDir, logFileName);
+
+    // Write the log content
+    fs.writeFileSync(fullPath, logData, 'utf8');
+    return { success: true, path: fullPath };
+  } catch (err) {
+    console.error('Failed to write log file:', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('logs:list', async () => {
+  const logsDir = path.resolve(process.cwd(), 'LOGS');
+  try {
+    const files = fs.readdirSync(logsDir);
+    return files.map(filename => path.join(logsDir, filename));
+  } catch (err) {
+    console.error('Failed to list log files:', err);
+    return [];
+  }
+});
+
+
 // Read file (image or text)
 ipcMain.handle('file:read', async (event, filePath) => {
   try {

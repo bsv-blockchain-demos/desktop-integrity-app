@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openDialog: () => ipcRenderer.invoke('dialog:open'),
   readFile: (filePath) => ipcRenderer.invoke('file:read', filePath),
   onAppQuit: (callback) => ipcRenderer.on('app-quit', callback),
+  confirmQuit: () => ipcRenderer.send('confirm-quit'),
 });

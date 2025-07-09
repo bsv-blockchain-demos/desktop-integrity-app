@@ -10,6 +10,7 @@ function App() {
   const [files, setFiles] = useState([]);
   const [fileContent, setFileContent] = useState('');
   const [filePath, setFilePath] = useState('');
+  const [savedFiles, setSavedFiles] = useState([]);
 
   // Get file content
   useEffect(() => {
@@ -25,7 +26,36 @@ function App() {
 
   const handleSaveToBlockchain = () => {
     // TODO: Save to blockchain, hash file content
+    console.log("filePath", filePath);
+    const fileName = filePath.split(/[/\\]/).pop(); // get just the file name
+
+    // Get existing list or initialize
+    const existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
+
+    if (existing.includes(fileName)) {
+      console.log("File already saved");
+      // Show modal to user that file is already saved
+      // Give option to update file
+      if (files.length !== 0) {
+        setFiles([]);
+        setFileContent('');
+      }
+      setFilePath('');
+      return;
+    }
+
+    // Add new file name
+    const updated = [...existing, fileName];
+
+    // Save back to localStorage
+    localStorage.setItem('savedFiles', JSON.stringify(updated));
+    setSavedFiles(updated);
     // TODO: Create file in logs folder
+    if (files.length !== 0) {
+      setFiles([]);
+      setFileContent('');
+    }
+    setFilePath('');
   };
 
   // Reset file content on cancel button click
@@ -50,9 +80,9 @@ function App() {
           handleCancel={handleCancel}
           fileContent={fileContent}
           setFileContent={setFileContent}
+          savedFiles={savedFiles}
         />} />
         <Route path="/logs" element={<Logs />} />
-        <Route path="/status" element={<Status />} />
       </Routes>
     </div>
   )

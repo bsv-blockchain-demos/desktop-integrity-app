@@ -8,10 +8,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 console.log("__dirname", __dirname);
 
+let win;
+
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 720,
+  win = new BrowserWindow({
+    width: 1800,
+    height: 1200,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -20,6 +22,12 @@ function createWindow() {
   });
 
   win.loadURL('http://localhost:5173'); // Load the Vite React app
+
+  // Intercept close to allow renderer cleanup
+  win.on('close', (e) => {
+    e.preventDefault(); // prevent immediate close
+    win.webContents.send('app-quit'); // ask renderer to clean up
+  });
 }
 
 ipcMain.handle('dialog:open', async () => {
@@ -54,12 +62,6 @@ ipcMain.handle('file:read', async (event, filePath) => {
 app.whenReady().then(() => {
   createWindow();
 
-  app.on('before-quit', () => {
-    if (mainWindow) {
-      mainWindow.webContents.send('app-quit'); // send message to renderer
-    }
-  });
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -67,6 +69,12 @@ app.whenReady().then(() => {
   console.error('Failed to create window:', error);
 });
 
-app.on('window-all-closed', () => {
+ipcMain.on('confirm-quit', () => {
+  // Now it's safe to destroy the window and quit
+  win.destroy();
+  app.quit();
+});
+
+app.on('window-all-closed', async () => {
   if (process.platform !== 'darwin') app.quit();
 });

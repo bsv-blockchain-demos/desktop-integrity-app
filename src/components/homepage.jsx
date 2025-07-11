@@ -1,8 +1,10 @@
 import React, { useState, useCallback } from 'react'
+import { useFile } from '../../context/fileContext.jsx';
 import Status from './status';
 import '../css/layout.css';
 
-function Homepage({ handleSaveToBlockchain, files, setFiles, fileContent, setFilePath, setFileContent, handleCancel, savedFiles }) {
+function Homepage() {
+  const { files, setFiles, fileContent, setFilePath, handleCancel, savedFiles, handleSaveToBlockchain } = useFile();
   // Let user select files with dialog
   const handleSelectFiles = async () => {
     if (window.electronAPI?.openDialog) {

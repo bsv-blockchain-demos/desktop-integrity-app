@@ -1,8 +1,6 @@
 import { Transaction, TopicBroadcaster, LookupResolver } from '@bsv/sdk';
-import { HashPuzzle } from './HashPuzzle';
+import { FileHash } from './FileHash';
 import { useWallet } from '../context/walletContext';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const overlay = new LookupResolver({
     slapTrackers: ['https://overlay-us-1.bsvb.tech'],
@@ -11,9 +9,9 @@ const overlay = new LookupResolver({
     }
 });
 
-export async function createTransaction(encryptedFileContent) {
+export async function createTransaction(fileContent) {
     const { wallet } = useWallet();
-    
+
     try {
         if (!wallet) {
             throw new Error("Wallet not connected");
@@ -25,13 +23,13 @@ export async function createTransaction(encryptedFileContent) {
             outputs: [
                 {
                     outputDescription: "File Integrity",
-                    lockingScript: new HashPuzzle().lock(encryptedFileContent),
-                    satoshis: 1,
+                    lockingScript: new FileHash().lock(fileContent),
+                    satoshis: 0,
                 }
             ]
         });
 
-        broadcastTransaction(response);
+        //broadcastTransaction(response);
 
         return response;
     } catch (error) {

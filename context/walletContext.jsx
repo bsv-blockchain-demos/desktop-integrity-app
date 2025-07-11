@@ -1,5 +1,5 @@
 import { WalletClient, Utils, Random } from '@bsv/sdk';
-import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
+import React, { createContext, useContext, useCallback, useState, useRef } from 'react';
 import useClearLocalStorageOnQuit from '../hooks/clearStorage';
 import { toast } from 'react-hot-toast';
 
@@ -18,13 +18,18 @@ export function WalletProvider({ children }) {
     const [wallet, setWallet] = useState(null);
     const [pubKey, setPubKey] = useState(null);
     const [derivedPubKey, setDerivedPubKey] = useState(null);
-    const [keyID, setKeyID] = useState(() => {
+    // KeyID is static per session
+    const keyIDRef = useRef(null);
+    if (!keyIDRef.current) {
         const existing = localStorage.getItem('keyID');
-        if (existing) return existing;
-        const newKey = Utils.toHex(Random(8));
-        localStorage.setItem('keyID', newKey);
-        return newKey;
-    });
+        if (existing) keyIDRef.current = existing;
+        else {
+            const newKey = Utils.toHex(Random(8));
+            localStorage.setItem('keyID', newKey);
+            keyIDRef.current = newKey;
+        }
+    }
+    const keyID = keyIDRef.current;
     console.log("keyID", keyID);
 
     useClearLocalStorageOnQuit();
@@ -53,21 +58,16 @@ export function WalletProvider({ children }) {
                 duration: 5000,
                 position: 'top-center',
                 id: 'wallet-connect-success',
-              });
+            });
         } catch (error) {
             console.error('Failed to initialize wallet:', error);
             toast.error('Failed to connect wallet. \nTo save files to blockchain, please open a wallet client.', {
                 duration: 5000,
                 position: 'top-center',
                 id: 'wallet-connect-error',
-              });
+            });
         }
-    }, [keyID]);
-
-    // Run once on mount
-    useEffect(() => {
-        initializeWallet();
-    }, [initializeWallet]);
+    }, []);
 
     return (
         <WalletContext.Provider

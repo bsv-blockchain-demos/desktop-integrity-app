@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useWallet } from '../../context/walletContext.jsx';
 import '../css/navbar.css';
 
@@ -12,6 +12,7 @@ function Navbar() {
             setLoading(true);
             await initializeWallet();
             setLoading(false);
+            console.log("Wallet connected");
         }
         return;
     };

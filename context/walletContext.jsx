@@ -41,7 +41,7 @@ export function WalletProvider({ children }) {
 
             const identityKey = await newWallet.getPublicKey({ identityKey: true });
             const derivedKey = await newWallet.getPublicKey({
-                protocolID: [0, 'slackthreads'],
+                protocolID: [0, 'fileintegrity'],
                 keyID,
             });
 

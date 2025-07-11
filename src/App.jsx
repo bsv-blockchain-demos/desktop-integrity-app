@@ -6,8 +6,11 @@ import Logs from './components/logs'
 import Navbar from './components/navbar'
 import Verify from './components/verify'
 import { toast } from 'react-hot-toast';
+import { createTransaction } from './hooks/transactions';
+import { useWallet } from './context/walletContext';
 
 function App() {
+  const { wallet } = useWallet();
   const [files, setFiles] = useState([]);
   const [fileContent, setFileContent] = useState('');
   const [filePath, setFilePath] = useState('');
@@ -29,6 +32,8 @@ function App() {
     let fileName = '';
     let existing = [];
     let time = '';
+    const ext = fileContent.split('.').pop();
+    const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
 
     try {
       console.log("filePath", filePath);
@@ -69,13 +74,19 @@ function App() {
       localStorage.setItem('savedFiles', JSON.stringify(updated));
       setSavedFiles(updated);
 
-      // TODO: Save to blockchain, hash file content
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Timer to simulate making TX
+      // Save to blockchain, hash file content
+      // Convert image to text
+      let encryptedFileContent;
+      if (isImage) {
+        const base64 = Buffer.from(fileContent).toString('base64');
+        encryptedFileContent = await wallet.WalletEncrypt({plantext:base64, keyID: localStorage.getItem('keyID'), protocolID: [0,'fileintegrity']});
+      } else {
+        encryptedFileContent = await wallet.WalletEncrypt({plantext:fileContent, keyID: localStorage.getItem('keyID'), protocolID: [0,'fileintegrity']});
+      }
+      const response = await createTransaction(encryptedFileContent);
 
-      // Dummy values to test Logs
-      const txID = 'txID';
-      const satoshis = 101;
-      const EncryptedContent = 'EncryptedContent';
+      const txID = response.txID;
+      const satoshis = response.satoshis;
 
       // Update status
       const updatedStatus = updated.map((file) => {
@@ -102,7 +113,7 @@ function App() {
       const keyID = localStorage.getItem('keyID');
       const logData = `SavedFile: ${fileName}
     \nTime: ${time}
-    \nEncryptedContent:\n${EncryptedContent}
+    \nEncryptedContent:\n${encryptedFileContent}
     \nSavedWithKeyID: ${keyID}
     \nTxID: ${txID}
     \nSatoshis: ${satoshis}

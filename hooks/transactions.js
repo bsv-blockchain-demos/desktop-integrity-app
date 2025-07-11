@@ -1,5 +1,6 @@
-import { WalletClient, Transaction, TopicBroadcaster, LookupResolver } from '@bsv/sdk';
+import { Transaction, TopicBroadcaster, LookupResolver } from '@bsv/sdk';
 import { HashPuzzle } from './HashPuzzle';
+import { useWallet } from '../context/walletContext';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,8 +12,12 @@ const overlay = new LookupResolver({
 });
 
 export async function createTransaction(encryptedFileContent) {
+    const { wallet } = useWallet();
+    
     try {
-        const wallet = new WalletClient("auto", process.env.FILE_INTEGRITY_WORKSPACE);
+        if (!wallet) {
+            throw new Error("Wallet not connected");
+        }
 
         // Create new transaction
         const response = await wallet.createAction({

@@ -32,7 +32,7 @@ function App() {
     let fileName = '';
     let existing = [];
     let time = '';
-    const ext = fileContent.split('.').pop();
+    const ext = filePath.split('.').pop().toLowerCase();
     const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
 
     try {

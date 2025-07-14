@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useWallet } from '../../context/walletContext.jsx';
 import '../css/navbar.css';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
     const { wallet, initializeWallet } = useWallet();
@@ -20,9 +21,9 @@ function Navbar() {
     return (
         <nav className="navbar">
             <div className="nav-links">
-                <a href="/" className="nav-btn">Save files</a>
-                <a href="/logs" className="nav-btn">Logs</a>
-                <a href="/verify" className="nav-btn">Verify files</a>
+                <Link to="/" className="nav-btn">Save files</Link>
+                <Link to="/logs" className="nav-btn">Logs</Link>
+                <Link to="/verify" className="nav-btn">Verify files</Link>
             </div>
             <button
                 className={`connect-wallet-btn ${wallet ? 'connected' : ''}`}

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createTransaction } from '../hooks/transactions';
 import { useWallet } from './walletContext';
 import { toast } from 'react-hot-toast';
 
@@ -75,12 +76,7 @@ export function FileProvider({ children }) {
             // Save to blockchain, hash file content
             const encryptedFileContent = await wallet.encrypt({ plaintext: fileContent.content, keyID: localStorage.getItem('keyID'), protocolID: [0, 'fileintegrity'] });
 
-            console.log("encryptedFileContent", encryptedFileContent.ciphertext);
-
-            const decryptedFileContent = await wallet.decrypt({ ciphertext: encryptedFileContent.ciphertext, keyID: localStorage.getItem('keyID'), protocolID: [0, 'fileintegrity'] });
-            console.log("decryptedFileContent", decryptedFileContent);
-            return;
-            const response = await createTransaction(fileContent.content);
+            const response = await createTransaction(fileContent.content, wallet, encryptedFileContent.ciphertext);
 
             const txID = response.txID;
             const satoshis = response.satoshis;
@@ -110,7 +106,7 @@ export function FileProvider({ children }) {
             const keyID = localStorage.getItem('keyID');
             const logData = `SavedFile: ${fileName}
                 \nTime: ${time}
-                \nEncryptedContent:\n${fileContent}
+                \nFileContent:\n${fileContent}
                 \nSavedWithKeyID: ${keyID}
                 \nTxID: ${txID}
                 \nSatoshis: ${satoshis}

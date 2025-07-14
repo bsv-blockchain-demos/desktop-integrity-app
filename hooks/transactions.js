@@ -1,6 +1,5 @@
 import { Transaction, TopicBroadcaster, LookupResolver } from '@bsv/sdk';
 import { FileHash } from './FileHash';
-import { useWallet } from '../context/walletContext';
 
 const overlay = new LookupResolver({
     slapTrackers: ['https://overlay-us-1.bsvb.tech'],
@@ -9,9 +8,7 @@ const overlay = new LookupResolver({
     }
 });
 
-export async function createTransaction(fileContent) {
-    const { wallet } = useWallet();
-
+export async function createTransaction(fileContent, wallet, encryptedFileContent) {
     try {
         if (!wallet) {
             throw new Error("Wallet not connected");
@@ -29,7 +26,7 @@ export async function createTransaction(fileContent) {
             ]
         });
 
-        //broadcastTransaction(response);
+        //broadcastTransaction(response, encryptedFileContent);
 
         return response;
     } catch (error) {
@@ -37,7 +34,7 @@ export async function createTransaction(fileContent) {
     }
 }
 
-export async function broadcastTransaction(response) {
+export async function broadcastTransaction(response, encryptedFileContent) {
     try {
         // broadcast transaction to overlay
         // Capture the resulting transaction

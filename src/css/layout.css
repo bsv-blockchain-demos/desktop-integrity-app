@@ -215,6 +215,15 @@
   padding-bottom: 0.5rem;
 }
 
+.verify-container {
+    display: flex;
+    padding-left: 15%;
+    padding-right: 15%;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
 /* Responsive layout */
 @media (max-width: 768px) {
   .main-container {

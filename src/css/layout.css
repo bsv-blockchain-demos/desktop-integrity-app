@@ -94,6 +94,18 @@
   white-space: nowrap;
 }
 
+.status-table tr.success .transaction-id {
+  cursor: pointer;
+}
+
+.status-table .transaction-id.show-full {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  overflow: visible;
+}
+
 .status-table .empty-row td {
   text-align: center;
   padding: 2rem;

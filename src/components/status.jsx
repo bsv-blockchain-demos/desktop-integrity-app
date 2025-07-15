@@ -8,7 +8,7 @@ function Status({ savedFiles }) {
       <h1 className="block-header">Status</h1>
       <div className="status-table-container">
         <table className="status-table">
-          <thead>
+          <thead className="table-head">
             <tr>
               <th>Transaction ID</th>
               <th>File name</th>

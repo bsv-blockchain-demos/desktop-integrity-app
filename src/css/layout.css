@@ -215,6 +215,14 @@
   padding-bottom: 0.5rem;
 }
 
+.table-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .verify-container {
     display: flex;
     padding-left: 15%;

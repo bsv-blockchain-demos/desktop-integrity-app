@@ -57,7 +57,7 @@ function Logs() {
         <h1 className="block-header">Logs</h1>
         <div className="status-table-container">
           <table className="status-table logs-table">
-            <thead>
+            <thead className="table-head">
               <tr>
                 <th>File Name</th>
                 <th>Timestamp</th>

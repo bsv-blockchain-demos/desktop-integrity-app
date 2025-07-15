@@ -16,14 +16,20 @@ function Status({ savedFiles }) {
           </thead>
           <tbody>
             {savedFiles && savedFiles.length > 0 ? (
-              savedFiles.map((file, index) => (
-                <tr key={index}>
-                  <td className="transaction-id">{file.status.txID}</td>
-                  <td>{file.fileName}</td>
-                  <td>{file.status.satoshis}</td>
-                  <td>{file.status.time}</td>
-                </tr>
-              ))
+              savedFiles.map((file, index) => {
+                const isSuccess = file.status?.txID && file.status.txID !== 'Failed';
+
+                return (
+                  <tr key={index} className={isSuccess ? 'success' : 'failed'}>
+                    <td className="transaction-id">
+                      {file.status?.txID || 'Failed'}
+                    </td>
+                    <td>{file.fileName}</td>
+                    <td>{file.status?.satoshis || 'Failed'}</td>
+                    <td>{file.status?.time || 'N/A'}</td>
+                  </tr>
+                );
+              })
             ) : (
               <tr className="empty-row">
                 <td colSpan="4">No files have been saved yet.</td>

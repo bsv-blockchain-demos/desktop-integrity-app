@@ -20,8 +20,8 @@ export async function createTransaction(fileContent, wallet, encryptedFileConten
             outputs: [
                 {
                     outputDescription: "File Integrity",
-                    lockingScript: new FileHash().lock(fileContent),
-                    satoshis: 0,
+                    lockingScript: new FileHash().lock(fileContent).toHex(),
+                    satoshis: 1,
                 }
             ]
         });

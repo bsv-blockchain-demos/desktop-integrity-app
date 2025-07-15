@@ -100,6 +100,15 @@
   color: #888;
 }
 
+/* Style for successful transactions */
+.status-table tr.success td {
+  color: #68ff75c9;
+}
+
+.status-table tr.failed td {
+  color: #ff6868c9;
+}
+
 /* Logs component styling */
 .logs-block {
   width: 100%;

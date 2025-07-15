@@ -37,23 +37,6 @@ export function FileProvider({ children }) {
             // Get existing list or initialize
             existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
 
-            if (existing.includes(fileName)) {
-                console.log("File already saved");
-                // Show modal to user that file is already saved
-                toast.error('File already saved', {
-                    duration: 3000,
-                    position: 'center',
-                    id: 'file-saved-error',
-                });
-                // Give option to update file
-                if (files.length !== 0) {
-                    setFiles([]);
-                    setFileContent('');
-                }
-                setFilePath('');
-                return;
-            }
-
             // Check if file exists in logs already
 
             time = new Date().toLocaleString()
@@ -63,6 +46,9 @@ export function FileProvider({ children }) {
             console.log("stats", stats);
 
             // Add new file name
+            if (existing.some(file => file.fileName === fileName)) {
+                fileName = fileName + " (" + existing.length + ")";
+            }
             const updated = [...existing, { fileName, status: { txID: 'Creating...', satoshis: 'Calculating...', time } }];
 
             // Save back to localStorage
@@ -78,8 +64,9 @@ export function FileProvider({ children }) {
 
             const response = await createTransaction(fileContent.content, wallet, encryptedFileContent.ciphertext);
 
-            const txID = response.txID;
-            const satoshis = response.satoshis;
+            console.log("Response", response);
+            const txID = response.txid;
+            const satoshis = "2";
 
             // Update status
             const updatedStatus = updated.map((file) => {
@@ -102,9 +89,10 @@ export function FileProvider({ children }) {
             // Create file in logs folder
             const fileCreatedTS = stats.createdTS.replace('T', ' ');
             const fileModifiedTS = stats.modifiedTS.replace('T', ' ');
+            const cleanFileName = fileName.replace(/\s\(\d+\)$/, '');
 
             const keyID = localStorage.getItem('keyID');
-            const logData = `SavedFile: ${fileName}
+            const logData = `SavedFile: ${cleanFileName}
                 \nTime: ${time}
                 \nFileContent:\n${fileContent}
                 \nSavedWithKeyID: ${keyID}
@@ -113,7 +101,7 @@ export function FileProvider({ children }) {
                 \nFileCreatedTS: ${fileCreatedTS}
                 \nFileModifiedTS: ${fileModifiedTS}`;
 
-            const result = await window.electronAPI.writeLog(fileName, logData);
+            const result = await window.electronAPI.writeLog(cleanFileName, logData);
             if (result.success) {
                 console.log('Log saved at', result.path);
             } else {

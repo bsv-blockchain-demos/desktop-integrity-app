@@ -1,4 +1,4 @@
-import { WalletClient, Utils, Random } from '@bsv/sdk';
+import { WalletClient, Utils, Random, LocalKVStore } from '@bsv/sdk';
 import React, { createContext, useContext, useCallback, useState, useRef } from 'react';
 import useClearLocalStorageOnQuit from '../hooks/clearStorage';
 import { toast } from 'react-hot-toast';
@@ -10,6 +10,8 @@ export async function checkWalletConnection(wallet) {
     }
     return false;
 }
+
+const kvStore = new LocalKVStore();
 
 const WalletContext = createContext({});
 export const useWallet = () => useContext(WalletContext);

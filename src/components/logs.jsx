@@ -30,7 +30,15 @@ function Logs() {
           })
         );
 
-        setLogs(logContents);
+        // Sort logs by timestamp, newest first
+        const sortedLogs = logContents.sort((a, b) => {
+          // Convert timestamps to Date objects for comparison
+          const dateA = new Date(a.timestamp.replace(' ', 'T').replace(/:/g, '-'));
+          const dateB = new Date(b.timestamp.replace(' ', 'T').replace(/:/g, '-'));
+          return dateB - dateA; // Descending order (newest first)
+        });
+
+        setLogs(sortedLogs);
       } catch (error) {
         console.error('Error reading log files:', error);
       }

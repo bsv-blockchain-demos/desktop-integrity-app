@@ -39,6 +39,7 @@ export async function broadcastTransaction(response, encryptedFileContent) {
         // broadcast transaction to overlay
         // Capture the resulting transaction
         const tx = Transaction.fromBEEF(response.tx);
+        const metadata = encryptedFileContent;
 
         // Lookup a service which accepts this type of token
         const tb = new TopicBroadcaster(['tm_fileintegrity'], {

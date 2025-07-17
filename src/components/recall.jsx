@@ -81,9 +81,11 @@ function Recall() {
         try {
             if (!txid) {
                 console.error("No txid provided");
+                toast.error("No txid provided");
                 return;
             } else if (txid.length !== 64) {
                 console.error("Invalid txid");
+                toast.error("Invalid txid");
                 return;
             }
 
@@ -182,22 +184,31 @@ function Recall() {
     return (
         (!decryptedContent ? (
             <div>
-                <h1>Recall</h1>
                 {selectedLog === null ? (
                     <div>
-                        <p>Select a log if possible</p>
-                        <ul>
-                            {logs.map((log) => {
-                                const fileName = log.split(/[\\/]/).pop();
-                                return (
-                                    <li key={fileName}>
-                                        <button onClick={() => setSelectedLog(log)}>{fileName}</button>
-                                    </li>
-                                )
-                            })}
-                        </ul>
-
-                        <p>Put in txid manually if no logs</p>
+                        <div className="content-block logs-block">
+                            <h1 className="block-header">Select a log</h1>
+                            <div className="status-table-container">
+                                <table className="status-table logs-table">
+                                    <thead className="table-head">
+                                        <tr>
+                                            <th>File Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {logs.map((log) => {
+                                            const fileName = log.split(/[\\/]/).pop();
+                                            return (
+                                                <tr key={fileName}>
+                                                    <td onClick={() => setSelectedLog(log)}>{fileName}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <h1 className="block-header">Put in txid manually if no logs</h1>
                         <form onSubmit={(e) => { e.preventDefault(); tryRecallFromTxID(txid); }}>
                             <input type="text" placeholder="txid" onChange={(e) => setTxid(e.target.value)} />
                             <button type="submit">Recall</button>
@@ -206,6 +217,7 @@ function Recall() {
                 ) : (
                     <div>
                         <p>Selected Log: {selectedLog.split(/[\\/]/).pop()}</p>
+                        <button onClick={() => setSelectedLog(null)}>Cancel</button>
                         <button onClick={() => tryRecallFromLogs()}>Recall</button>
                     </div>
                 )}

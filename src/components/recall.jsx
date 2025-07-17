@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useWallet } from '../../context/walletContext';
 import { getTransactionByTxID } from '../../hooks/transactions';
 import toast from 'react-hot-toast';
+import '../css/layout.css';
+import '../css/recall.css';
 
 function Recall() {
     const { localKVStore, wallet } = useWallet();
@@ -182,60 +184,96 @@ function Recall() {
     }
 
     return (
-        (!decryptedContent ? (
-            <div>
-                {selectedLog === null ? (
+        <div className="main-container">
+            <div className="content-block recall-container">
+                {!decryptedContent ? (
                     <div>
-                        <div className="content-block logs-block">
-                            <h1 className="block-header">Select a log</h1>
-                            <div className="status-table-container">
-                                <table className="status-table logs-table">
-                                    <thead className="table-head">
-                                        <tr>
-                                            <th>File Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {logs.map((log) => {
-                                            const fileName = log.split(/[\\/]/).pop();
-                                            return (
-                                                <tr key={fileName}>
-                                                    <td onClick={() => setSelectedLog(log)}>{fileName}</td>
+                        <h1 className="block-header">Recall Files</h1>
+                        
+                        {selectedLog === null ? (
+                            <div>
+                                <div className="recall-section">
+                                    <h2 className="block-header">Select a log</h2>
+                                    <div className="status-table-container">
+                                        <table className="status-table logs-table">
+                                            <thead className="table-head">
+                                                <tr>
+                                                    <th>File Name</th>
                                                 </tr>
-                                            )
-                                        })}
-                                    </tbody>
-                                </table>
+                                            </thead>
+                                            <tbody>
+                                                {logs.length > 0 ? (
+                                                    logs.map((log) => {
+                                                        const fileName = log.split(/[\\/]/).pop();
+                                                        return (
+                                                            <tr key={fileName} onClick={() => setSelectedLog(log)}>
+                                                                <td>{fileName}</td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                ) : (
+                                                    <tr className="empty-row">
+                                                        <td>No log files found.</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div className="recall-section">
+                                    <h2 className="block-header">Recall by Transaction ID</h2>
+                                    <form className="recall-form" onSubmit={(e) => { e.preventDefault(); tryRecallFromTxID(txid); }}>
+                                        <input 
+                                            className="recall-input" 
+                                            type="text" 
+                                            placeholder="Enter transaction ID" 
+                                            onChange={(e) => setTxid(e.target.value)} 
+                                        />
+                                        <button className="recall-button" type="submit">Recall</button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                        <h1 className="block-header">Put in txid manually if no logs</h1>
-                        <form onSubmit={(e) => { e.preventDefault(); tryRecallFromTxID(txid); }}>
-                            <input type="text" placeholder="txid" onChange={(e) => setTxid(e.target.value)} />
-                            <button type="submit">Recall</button>
-                        </form>
+                        ) : (
+                            <div>
+                                <div className="selected-log-info">
+                                    <span className="selected-log-name">Selected Log: {selectedLog.split(/[\\/]/).pop()}</span>
+                                    <div className="selected-log-actions">
+                                        <button className="action-button small-button cancel" onClick={() => setSelectedLog(null)}>Cancel</button>
+                                        <button className="action-button small-button" onClick={() => tryRecallFromLogs()}>Recall</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div>
-                        <p>Selected Log: {selectedLog.split(/[\\/]/).pop()}</p>
-                        <button onClick={() => setSelectedLog(null)}>Cancel</button>
-                        <button onClick={() => tryRecallFromLogs()}>Recall</button>
+                        <h1 className="block-header">Recalled File</h1>
+                        <div className="recalled-file-container">
+                            <div className="recalled-file-info">
+                                <h3>File Information</h3>
+                                <p>
+                                    <strong>Filename:</strong> {decryptedContent.filename} <br />
+                                    <strong>Size:</strong> {(decryptedContent.data.length / 1024).toFixed(2)} KB
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h3>Preview</h3>
+                                <div className="recalled-file-preview">
+                                    {getPreview(decryptedContent)}
+                                </div>
+                            </div>
+                            
+                            <div className="recalled-file-actions">
+                                <button className="recall-button" onClick={() => downloadFile(decryptedContent.data, decryptedContent.filename)}>Download File</button>
+                                <button className="recall-button secondary" onClick={() => setDecryptedContent(null)}>Recall Another File</button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-        ) : (
-            <div>
-                <h1>Recalled file successfully</h1>
-                <p>
-                    Filename: {decryptedContent.filename} <br />
-                    Size: {(decryptedContent.data.length / 1024).toFixed(2)} KB
-                </p>
-                <p>Preview:</p>
-                {getPreview(decryptedContent)}
-                <p>Save file?</p>
-                <button onClick={() => downloadFile(decryptedContent.data, decryptedContent.filename)}>Download</button>
-                <button onClick={() => setDecryptedContent(null)}>Recall another file</button>
-            </div>
-        ))
+        </div>
     );
 }
 

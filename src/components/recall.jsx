@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '../context/walletContext';
-import { getTransactionByTxID } from '../hooks/transactions';
+import { useWallet } from '../../context/walletContext';
+import { getTransactionByTxID } from '../../hooks/transactions';
 import toast from 'react-hot-toast';
 
 function Recall() {
@@ -28,7 +28,7 @@ function Recall() {
 
             const rawContent = await window.electronAPI.readFile(selectedLog);
             console.log("rawContent", rawContent);
-            const objectContent = JSON.parse(rawContent);
+            const objectContent = parseLogContent(rawContent.content);
             console.log("objectContent", objectContent);
 
             // Get txid and keyID from log
@@ -163,6 +163,20 @@ function Recall() {
                 <p>Preview not available for this file type.</p>
             </div>
         );
+    }
+
+    function parseLogContent(text) {
+        const lines = text.split('\n');
+        const data = {};
+
+        for (const line of lines) {
+            const [key, ...rest] = line.trim().split(':');
+            if (key && rest.length) {
+                data[key.trim()] = rest.join(':').trim();
+            }
+        }
+
+        return data;
     }
 
     return (

@@ -111,6 +111,21 @@ ipcMain.handle('file:read', async (event, filePath) => {
   }
 });
 
+// Save recalled file
+ipcMain.handle('save-decrypted-file', async (event, content, fileName) => {
+  const result = await dialog.showSaveDialog({
+      title: 'Save Recalled File',
+      defaultPath: `recalled_${fileName}`,
+  });
+
+  if (result.canceled || !result.filePath) return;
+
+  // Ensure content is a Buffer
+  const buffer = Buffer.from(content);
+
+  fs.writeFileSync(result.filePath, buffer);
+});
+
 app.whenReady().then(() => {
   createWindow();
 

@@ -24,6 +24,7 @@ function Navbar() {
                 <Link to="/" className="nav-btn">Save files</Link>
                 <Link to="/logs" className="nav-btn">Logs</Link>
                 <Link to="/verify" className="nav-btn">Verify files</Link>
+                <Link to="/recall" className="nav-btn">Recall files</Link>
             </div>
             <button
                 className={`connect-wallet-btn ${wallet ? 'connected' : ''}`}

@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeLog: (fileName, data) => ipcRenderer.invoke('log:write', fileName, data),
   listLogs: () => ipcRenderer.invoke('logs:list'),
   getFileStats: (filePath) => ipcRenderer.invoke('file:stats', filePath),
+  saveDecryptedFile: (content, fileName) => ipcRenderer.invoke('save-decrypted-file', content, fileName),
 });

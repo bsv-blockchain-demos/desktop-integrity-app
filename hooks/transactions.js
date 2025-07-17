@@ -8,7 +8,7 @@ const overlay = new LookupResolver({
     }
 });
 
-export async function createTransaction(fileContent, wallet, encryptedFileContent) {
+export async function createTransaction(fileContent, wallet, encryptedFileContent, fileName) {
     try {
         if (!wallet) {
             throw new Error("Wallet not connected");
@@ -16,7 +16,7 @@ export async function createTransaction(fileContent, wallet, encryptedFileConten
 
         // Create new transaction
         const response = await wallet.createAction({
-            description: "File Integrity",
+            description: `File Integrity: ${fileName}`,
             outputs: [
                 {
                     outputDescription: "File Integrity",
@@ -62,6 +62,21 @@ export async function getTransactionByFileHash(hash) {
         const response = await overlay.query({
             service: 'ls_fileintegrity', query: {
                 fileHash: hash
+            }
+        }, 10000);
+
+        return response;
+    } catch (error) {
+        console.error("Error getting file integrity transaction:", error);
+    }
+}
+
+export async function getTransactionByTxID(txid) {
+    try {
+        // get transaction from overlay
+        const response = await overlay.query({
+            service: 'ls_fileintegrity', query: {
+                txid: txid
             }
         }, 10000);
 

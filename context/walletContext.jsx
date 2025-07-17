@@ -11,8 +11,6 @@ export async function checkWalletConnection(wallet) {
     return false;
 }
 
-const kvStore = new LocalKVStore();
-
 const WalletContext = createContext({});
 export const useWallet = () => useContext(WalletContext);
 
@@ -32,6 +30,7 @@ export function WalletProvider({ children }) {
         }
     }
     const keyID = keyIDRef.current;
+    const localKVStore = new LocalKVStore();
     console.log("keyID", keyID);
 
     useClearLocalStorageOnQuit();
@@ -78,6 +77,7 @@ export function WalletProvider({ children }) {
                 pubKey,
                 derivedPubKey,
                 keyID,
+                localKVStore,
                 checkWalletConnection,
                 initializeWallet
             }}

@@ -5,6 +5,7 @@ import Homepage from './components/homepage'
 import Logs from './components/logs'
 import Navbar from './components/navbar'
 import Verify from './components/verify'
+import Recall from './components/recall'
 import { useWallet } from '../context/walletContext';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/logs" element={<Logs />} />
         <Route path="/verify" element={<Verify />} />
+        <Route path="/recall" element={<Recall />} />
       </Routes>
     </div>
   )

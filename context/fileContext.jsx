@@ -7,7 +7,7 @@ const FileContext = createContext({});
 export const useFile = () => useContext(FileContext);
 
 export function FileProvider({ children }) {
-    const { wallet } = useWallet();
+    const { wallet, localKVStore } = useWallet();
     const [files, setFiles] = useState([]);
     const [fileContent, setFileContent] = useState('');
     const [filePath, setFilePath] = useState('');
@@ -62,7 +62,7 @@ export function FileProvider({ children }) {
             // Save to blockchain, hash file content
             const encryptedFileContent = await wallet.encrypt({ plaintext: fileContent.content, keyID: localStorage.getItem('keyID'), protocolID: [0, 'fileintegrity'] });
 
-            const response = await createTransaction(fileContent.content, wallet, encryptedFileContent.ciphertext);
+            const response = await createTransaction(fileContent.content, wallet, encryptedFileContent.ciphertext, fileName);
 
             console.log("Response", response);
             const txID = response.txid;
@@ -100,6 +100,8 @@ export function FileProvider({ children }) {
                 \nSatoshis: ${satoshis}
                 \nFileCreatedTS: ${fileCreatedTS}
                 \nFileModifiedTS: ${fileModifiedTS}`;
+
+            await localKVStore.setItem(`${txID}`, keyID);
 
             const result = await window.electronAPI.writeLog(cleanFileName, logData);
             if (result.success) {

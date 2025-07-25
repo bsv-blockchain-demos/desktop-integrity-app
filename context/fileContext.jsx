@@ -38,7 +38,28 @@ export function FileProvider({ children }) {
             existing = JSON.parse(localStorage.getItem('savedFiles')) || [];
 
             // Check if file exists in logs already
+            const logPaths = await window.electronAPI.listLogs();
 
+            const logContents = await Promise.all(
+                logPaths.map(async (filePath) => {
+                    const file = await window.electronAPI.readFile(filePath);
+                    return {
+                        name: file.name,
+                        content: file.content,
+                        // Extract the original filename without the timestamp
+                        originalName: file.name.split('-').slice(0, -1).join('-')
+                    };
+                })
+            );
+            // If fileName exists in logContents.originalName, throw error
+            if (logContents.some(file => file.originalName === fileName)) {
+                toast.error('File already exists', {
+                    duration: 5000,
+                    position: 'top-center',
+                    id: 'file-exists-error',
+                });
+                return;
+            }
             time = new Date().toLocaleString()
 
             // Get file stats

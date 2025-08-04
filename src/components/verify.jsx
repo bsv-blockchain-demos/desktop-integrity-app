@@ -87,7 +87,7 @@ function Verify() {
             <div className="content-block file-picker-block">
                 {files.length === 0 ? (
                     <>
-                        <h1 className="block-header">File/Folder Picker</h1>
+                        <h1 className="block-header">Verify Files</h1>
                         <button className="action-button" onClick={handleSelectFiles}>Select Files/Folders</button>
                         <ul>
                             {files.map((path, index) => (
@@ -104,7 +104,7 @@ function Verify() {
                     </>
                 ) : (
                     <>
-                        <h1 className="block-header">File/Folder Picker</h1>
+                        <h1 className="block-header">Verify Files</h1>
                         {files.length !== 0 && (
                             <div className="file-preview">
                                 <h3>Preview:</h3>

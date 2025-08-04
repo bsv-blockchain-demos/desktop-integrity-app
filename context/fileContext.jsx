@@ -122,7 +122,7 @@ export function FileProvider({ children }) {
                 \nFileCreatedTS: ${fileCreatedTS}
                 \nFileModifiedTS: ${fileModifiedTS}`;
 
-            await localKVStore.setItem(`${txID}`, keyID);
+            await localKVStore.set(`${txID}`, keyID);
 
             const result = await window.electronAPI.writeLog(cleanFileName, logData);
             if (result.success) {

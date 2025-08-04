@@ -1,7 +1,9 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useFile } from '../../context/fileContext.jsx';
 import Status from './status';
 import '../css/layout.css';
+import globalQueue from '../../utils/queueHandler';
+import { toast } from 'react-hot-toast';
 
 function Homepage() {
   const { files, setFiles, fileContent, setFilePath, handleCancel, savedFiles, handleSaveToBlockchain } = useFile();
@@ -35,6 +37,16 @@ function Homepage() {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
+  };
+
+  const handleSaveClick = () => {
+    globalQueue.enqueue(async () => {
+      try {
+          await handleSaveToBlockchain();
+      } catch (err) {
+          toast.error("Failed to save to blockchain:", err);
+      }
+  });
   };
 
   return (
@@ -79,7 +91,7 @@ function Homepage() {
 
             <div style={{ marginTop: '1rem' }}>
               <button className="action-button cancel" onClick={handleCancel}>Cancel</button>
-              <button className="action-button" onClick={handleSaveToBlockchain}>Save to blockchain</button>
+              <button className="action-button" onClick={handleSaveClick}>Save to blockchain</button>
             </div>
           </>
         )}

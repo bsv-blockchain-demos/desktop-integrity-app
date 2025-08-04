@@ -39,7 +39,7 @@ function Recall() {
 
             // If keyID doesn't exist fallback to localKVStore
             if (!keyID) {
-                const localKeyID = localKVStore.getItem(txid);
+                const localKeyID = localKVStore.get(txid);
                 if (!localKeyID) {
                     console.error("KeyID not found");
                     return;
@@ -99,7 +99,7 @@ function Recall() {
             const metadata = response.metadata;
 
             // Get keyID to decrypt file
-            const keyID = localKVStore.getItem(response.txid);
+            const keyID = localKVStore.get(response.txid);
             console.log("keyID", keyID);
 
             if (!wallet) {

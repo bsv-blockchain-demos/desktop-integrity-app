@@ -16,13 +16,19 @@ function Logs() {
             const file = await window.electronAPI.readFile(filePath);
             // Extract timestamp from filename (assuming format like filename-YYYY-MM-DDThh-mm-ss.txt)
             const timestampMatch = file.name.match(/-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})/);
-            const timestamp = timestampMatch ? 
-              timestampMatch[1].replace('T', ' ').replace(/-/g, ':').substring(0, 16) : 
-              'Unknown';
-              
+
+            let isoTimestamp = null;
+            let timestamp = null;
+            if (timestampMatch) {
+              // Convert to ISO format like "2025-08-03T14:32:10"
+              isoTimestamp = timestampMatch[1].replace('T', 'T').replace(/(\d{2})-(\d{2})-(\d{2})$/, (_, h, m, s) => `${h}:${m}:${s}`);
+              timestamp = timestampMatch[1].replace('T', ' ').replace(/:/g, ':').substring(0, 16);
+            }
+
             return {
               name: file.name,
               content: file.content,
+              isoTimestamp: isoTimestamp,
               timestamp: timestamp,
               // Extract the original filename without the timestamp
               originalName: file.name.split('-').slice(0, -1).join('-')
@@ -33,8 +39,8 @@ function Logs() {
         // Sort logs by timestamp, newest first
         const sortedLogs = logContents.sort((a, b) => {
           // Convert timestamps to Date objects for comparison
-          const dateA = new Date(a.timestamp.replace(' ', 'T').replace(/:/g, '-'));
-          const dateB = new Date(b.timestamp.replace(' ', 'T').replace(/:/g, '-'));
+          const dateA = a.isoTimestamp ? new Date(a.isoTimestamp) : new Date(0);
+          const dateB = b.isoTimestamp ? new Date(b.isoTimestamp) : new Date(0);
           return dateB - dateA; // Descending order (newest first)
         });
 
@@ -71,7 +77,7 @@ function Logs() {
                     <td>{log.originalName}</td>
                     <td>{log.timestamp}</td>
                     <td>
-                      <button 
+                      <button
                         className="action-button small-button"
                         onClick={() => handleLogClick(log)}
                       >

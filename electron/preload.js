@@ -16,4 +16,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listLogs: () => ipcRenderer.invoke('logs:list'),
   getFileStats: (filePath) => ipcRenderer.invoke('file:stats', filePath),
   saveDecryptedFile: (content, fileName) => ipcRenderer.invoke('save-decrypted-file', content, fileName),
+  minimize: () => ipcRenderer.send('window:minimize'),
+  toggleMaximize: () => ipcRenderer.send('window:toggleMaximize'),
+  close: () => ipcRenderer.send('window:close'),
 });

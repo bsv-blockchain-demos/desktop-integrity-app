@@ -1,0 +1,72 @@
+/* Custom Electron Top Bar Styling */
+.draggable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 32px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 16px;
+  -webkit-app-region: drag;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.draggable .app-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.9;
+}
+
+.no-drag {
+  display: flex;
+  gap: 1px;
+  -webkit-app-region: no-drag;
+}
+
+.no-drag button {
+  width: 46px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  opacity: 0.8;
+  outline: none;
+}
+
+.no-drag button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+}
+
+.no-drag button:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Close button gets special red hover state */
+.no-drag button:last-child:hover {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+.no-drag button:last-child:active {
+  background: #c0392b;
+}
+
+/* Note: App container and sidebar positioning handled in their respective CSS files */

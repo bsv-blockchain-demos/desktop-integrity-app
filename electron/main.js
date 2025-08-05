@@ -14,6 +14,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 700,
+    frame: false,
+    titleBarStyle: 'hidden',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -30,6 +32,22 @@ function createWindow() {
     win.webContents.send('app-quit'); // ask renderer to clean up
   });
 }
+
+ipcMain.on('window:minimize', () => {
+  win.minimize();
+});
+
+ipcMain.on('window:toggleMaximize', () => {
+  if (win.isMaximized()) {
+    win.unmaximize();
+  } else {
+    win.maximize();
+  }
+});
+
+ipcMain.on('window:close', () => {
+  win.close();
+});
 
 ipcMain.handle('dialog:open', async () => {
   const result = await dialog.showOpenDialog({
@@ -114,8 +132,8 @@ ipcMain.handle('file:read', async (event, filePath) => {
 // Save recalled file
 ipcMain.handle('save-decrypted-file', async (event, content, fileName) => {
   const result = await dialog.showSaveDialog({
-      title: 'Save Recalled File',
-      defaultPath: `recalled_${fileName}`,
+    title: 'Save Recalled File',
+    defaultPath: `recalled_${fileName}`,
   });
 
   if (result.canceled || !result.filePath) return;

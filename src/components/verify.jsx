@@ -52,7 +52,7 @@ function Verify() {
 
     if (response) {
         return (
-            <div className="verify-container">
+            <div className="main-container">
                 <div className="content-block file-picker-block">
                     <h1 className="block-header">File Integrity</h1>
                     {files.length !== 0 && (
@@ -83,7 +83,7 @@ function Verify() {
     }
 
     return (
-        <div className="verify-container">
+        <div className="main-container">
             <div className="content-block file-picker-block">
                 {files.length === 0 ? (
                     <>

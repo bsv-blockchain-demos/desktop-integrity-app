@@ -52,7 +52,7 @@ function Recall() {
             console.log("response", response);
 
             // Get metadata from transaction
-            const metadata = response.metadata;
+            const metadata = response.metadata.offChainValues;
 
             if (!wallet) {
                 console.error("Wallet not connected");
@@ -96,7 +96,7 @@ function Recall() {
             console.log("response", response);
 
             // Get metadata from transaction
-            const metadata = response.metadata;
+            const metadata = response.metadata.offChainValues;
 
             // Get keyID to decrypt file
             const keyID = localKVStore.get(response.txid);

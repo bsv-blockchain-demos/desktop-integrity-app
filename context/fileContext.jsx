@@ -134,6 +134,11 @@ export function FileProvider({ children }) {
             console.error('Failed to save file:', error);
             // Update status failed
             const failedUpdate = [...existing, { fileName, status: { txID: 'Failed', satoshis: 'Failed', time } }];
+            toast.error('Failed to save file: ' + error, {
+                duration: 5000,
+                position: 'top-center',
+                id: 'file-save-error',
+            });
 
             // Save back to localStorage
             localStorage.setItem('savedFiles', JSON.stringify(failedUpdate));

@@ -4,7 +4,7 @@ import { FileHash } from './FileHash';
 const overlay = new LookupResolver({
     slapTrackers: ['https://overlay-us-1.bsvb.tech'],
     additionalHosts: {
-        'ls_fileintegrity': ['https://overlay-us-1.bsvb.tech']
+        'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
     }
 });
 
@@ -26,7 +26,7 @@ export async function createTransaction(fileContent, wallet, encryptedFileConten
             ]
         });
 
-        //broadcastTransaction(response, encryptedFileContent);
+        broadcastTransaction(response, encryptedFileContent);
 
         return response;
     } catch (error) {
@@ -39,13 +39,16 @@ export async function broadcastTransaction(response, encryptedFileContent) {
         // broadcast transaction to overlay
         // Capture the resulting transaction
         const tx = Transaction.fromBEEF(response.tx);
-        const metadata = encryptedFileContent;
+        const metadata = new Map().set('OffChainValues', encryptedFileContent);
+        tx.metadata = metadata; 
+
+        // Writing, beef.length, beef, offchainvalues
 
         // Lookup a service which accepts this type of token
-        const tb = new TopicBroadcaster(['tm_fileintegrity'], {
+        const tb = new TopicBroadcaster(['tm_desktopintegrity'], {
             resolver: overlay,
             requireAcknowledgmentFromSpecificHostsForTopics: {
-              'ls_fileintegrity': ['https://overlay-us-1.bsvb.tech']
+              'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
             }
           })
 
@@ -61,7 +64,7 @@ export async function getTransactionByFileHash(hash) {
     try {
         // get transaction from overlay
         const response = await overlay.query({
-            service: 'ls_fileintegrity', query: {
+            service: 'ls_desktopintegrity', query: {
                 fileHash: hash
             }
         }, 10000);
@@ -76,7 +79,7 @@ export async function getTransactionByTxID(txid) {
     try {
         // get transaction from overlay
         const response = await overlay.query({
-            service: 'ls_fileintegrity', query: {
+            service: 'ls_desktopintegrity', query: {
                 txid: txid
             }
         }, 10000);

@@ -1,7 +1,18 @@
 import React, { useState } from 'react'
+import { toast } from 'react-hot-toast';
 
 function Status({ savedFiles }) {
   const [expandedTxIds, setExpandedTxIds] = useState([]);
+
+  const copyToClipboard = async (txId) => {
+    try {
+      await navigator.clipboard.writeText(txId);
+      toast.success('Transaction ID copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      toast.error('Failed to copy to clipboard');
+    }
+  };
 
   return (
     <>
@@ -29,8 +40,11 @@ function Status({ savedFiles }) {
                         if (!isSuccess) return; // Only allow clicking on successful transactions
                         
                         if (expandedTxIds.includes(index)) {
+                          // If already expanded, copy to clipboard
+                          copyToClipboard(file.status.txID);
                           setExpandedTxIds(expandedTxIds.filter(id => id !== index));
                         } else {
+                          // If collapsed, expand it
                           setExpandedTxIds([...expandedTxIds, index]);
                         }
                       }}

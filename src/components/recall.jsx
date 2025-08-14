@@ -52,7 +52,7 @@ function Recall() {
             console.log("response", response);
 
             // Get metadata from transaction
-            const metadata = response.metadata.offChainValues;
+            const metadata = response.metadata?.offChainValues;
 
             if (!wallet) {
                 console.error("Wallet not connected");

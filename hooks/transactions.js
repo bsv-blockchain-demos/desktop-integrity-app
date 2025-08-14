@@ -1,9 +1,9 @@
-import { Transaction, TopicBroadcaster, LookupResolver } from '@bsv/sdk';
+import { Transaction, TopicBroadcaster, LookupResolver, Utils } from '@bsv/sdk';
 import { FileHash } from './FileHash';
 
 const overlay = new LookupResolver({
     slapTrackers: ['https://overlay-us-1.bsvb.tech'],
-    additionalHosts: {
+    hostOverrides: {
         'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
     }
 });
@@ -38,23 +38,50 @@ export async function broadcastTransaction(response, encryptedFileContent) {
     try {
         // broadcast transaction to overlay
         // Capture the resulting transaction
-        const tx = Transaction.fromBEEF(response.tx);
-        const metadata = new Map().set('OffChainValues', encryptedFileContent);
-        tx.metadata = metadata; 
+        // const tx = Transaction.fromBEEF(response.tx);
+        // const metadata = new Map().set('OffChainValues', encryptedFileContent);
+        // tx.metadata = metadata; 
 
         // Writing, beef.length, beef, offchainvalues
 
         // Lookup a service which accepts this type of token
-        const tb = new TopicBroadcaster(['tm_desktopintegrity'], {
-            resolver: overlay,
-            requireAcknowledgmentFromSpecificHostsForTopics: {
-              'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
-            }
-          })
+         //const tb = new TopicBroadcaster(['tm_desktopintegrity'], {
+        //     resolver: overlay,
+        //     requireAcknowledgmentFromSpecificHostsForTopics: {
+        //       'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
+        //     }
+        //   })
 
         // Send the tx to that overlay.
-        const overlayResponse = await tx.broadcast(tb)
-        console.log("Overlay response: ", overlayResponse);
+        //const overlayResponse = await tx.broadcast(tb)
+        //console.log("Overlay response: ", overlayResponse);
+
+        console.log("Broadcasting transaction to overlay");
+
+        const headers = {
+            'x-includes-off-chain-values': 'true',
+            'Content-Type': 'application/octet-stream',
+            'x-topics': JSON.stringify(['tm_desktopintegrity'])
+        }
+        let taggedBEEF = {
+            beef: response.tx,
+            offChainValues: encryptedFileContent
+        }
+
+        const w = new Utils.Writer()
+        w.writeVarIntNum(taggedBEEF.beef.length)
+        w.write(taggedBEEF.beef)
+        w.write(taggedBEEF.offChainValues)
+        const body = new Uint8Array(w.toArray())
+
+        const overlayResponse = await fetch('https://overlay-us-1.bsvb.tech/submit', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        
+        const data = await overlayResponse.json();
+        console.log("Overlay response: ", data);
     } catch (error) {
         console.error("Error broadcasting file integrity tx:", error);
     }

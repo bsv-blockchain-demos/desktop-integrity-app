@@ -62,7 +62,6 @@ function Verify() {
                                 <img
                                     src={fileContent.content}
                                     alt="Preview"
-                                    style={{ maxWidth: '100%', borderRadius: '6px' }}
                                 />
                             ) : (
                                 <pre>
@@ -112,7 +111,6 @@ function Verify() {
                                     <img
                                         src={fileContent.content}
                                         alt="Preview"
-                                        style={{ maxWidth: '100%', borderRadius: '6px' }}
                                     />
                                 ) : (
                                     <pre>

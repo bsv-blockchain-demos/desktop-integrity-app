@@ -59,7 +59,21 @@
 
 .sidebar-btn.active {
   background-color: #252ed8;
-  box-shadow: 0 2px 8px rgba(30, 99, 30, 0.3);
+  box-shadow: 0 2px 8px rgba(37, 46, 216, 0.4);
+  position: relative;
+  border-left: 4px solid #646cff;
+}
+
+.sidebar-btn.active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #646cff 0%, #535bf2 100%);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px rgba(100, 108, 255, 0.6);
 }
 
 .sidebar-icon {
@@ -89,7 +103,10 @@
 }
 
 .connect-wallet-btn.connected {
-  background-color: #36e036;
+  background-color: #10b981;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+  color: #ffffff;
 }
 
 .connect-wallet-btn:hover:not(.connected) {

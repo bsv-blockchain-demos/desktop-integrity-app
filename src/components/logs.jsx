@@ -61,7 +61,7 @@ function Logs() {
     <div className="main-container">
       <div className="content-block logs-block">
         <h1 className="block-header">Logs</h1>
-        <div className="status-table-container">
+        <div className="status-table-container custom-scrollbar">
           <table className="status-table logs-table">
             <thead className="table-head">
               <tr>

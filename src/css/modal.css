@@ -20,14 +20,14 @@
 }
 
 .modal-content {
-  background: linear-gradient(145deg, #2a2a2a 0%, #1e1e2e 100%);
-  border-radius: 16px;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-radius: var(--border-radius-lg);
   width: 70%;
   max-width: 700px;
   max-height: 70vh;
   min-height: 400px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(76, 79, 150, 0.2);
+  box-shadow: var(--shadow-xl), 0 0 0 1px var(--primary-blue-20);
   display: flex;
   flex-direction: column;
   animation: slideIn 0.3s ease-out;
@@ -46,7 +46,7 @@
 }
 
 .enhanced-modal {
-  border: 1px solid rgba(76, 79, 150, 0.3);
+  border: 1px solid var(--primary-blue-30);
 }
 
 .modal-header {
@@ -54,8 +54,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(76, 79, 150, 0.2);
-  background: linear-gradient(135deg, rgba(76, 79, 150, 0.15) 0%, rgba(76, 79, 150, 0.05) 100%);
+  border-bottom: 1px solid var(--primary-blue-20);
+  background: linear-gradient(135deg, var(--primary-blue-15) 0%, var(--primary-blue-05) 100%);
 }
 
 .enhanced-header {
@@ -77,14 +77,14 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #e1e1e1;
+  color: var(--text-secondary);
 }
 
 .modal-close-btn {
@@ -119,36 +119,7 @@
   line-height: 1.6;
 }
 
-/* Custom scrollbar styling for modal body */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background: rgba(76, 79, 150, 0.4);
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 79, 150, 0.6);
-}
-
-.modal-body::-webkit-scrollbar-corner {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Firefox scrollbar styling for modal */
-.modal-body {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(76, 79, 150, 0.4) rgba(255, 255, 255, 0.05);
-}
+/* Modal scrollbar - now uses .custom-scrollbar utility class */
 
 /* Metadata sections */
 .metadata-section {

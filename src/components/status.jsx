@@ -17,7 +17,7 @@ function Status({ savedFiles }) {
   return (
     <>
       <h1 className="block-header">Status</h1>
-      <div className="status-table-container">
+      <div className="status-table-container custom-scrollbar">
         <table className="status-table">
           <thead className="table-head">
             <tr>

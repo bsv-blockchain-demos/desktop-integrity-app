@@ -112,7 +112,7 @@ function LogContentModal({ log, onClose }) {
                     <button className="modal-close-btn" onClick={onClose}>×</button>
                 </div>
 
-                <div className="modal-body enhanced-body">
+                <div className="modal-body enhanced-body custom-scrollbar">
                     {/* File Metadata Section */}
                     {Object.keys(fileMetadata).length > 0 && (
                         <>

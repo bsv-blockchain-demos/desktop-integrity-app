@@ -1,6 +1,9 @@
 /* Import Inter font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Import centralized variables */
+@import './variables.css';
+
 /* Import sidebar styles */
 @import './sidebar.css';
 
@@ -10,17 +13,17 @@
   margin: 0 auto;
   padding: 0;
   text-align: center;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background-color: #1e1e2f;
-  color: #e0e0e0;
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
   min-height: 100vh;
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-primary);
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -38,43 +41,14 @@ h3 {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #1e1e2f;
-  color: #e0e0e0;
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
   margin: 0;
   padding: 0;
 }
 
-/* Logo animations */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em #6366f1aa);
-}
-
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
+/* Removed unused logo animations */
 
 /* Card styling */
 .card {

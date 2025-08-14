@@ -49,8 +49,8 @@
 }
 
 .recall-button.secondary:hover {
-  background-color: rgba(76, 79, 150, 0.3);
-  border-color: rgba(76, 79, 150, 0.5);
+  background-color: var(--primary-blue-30);
+  border-color: var(--primary-blue-50);
 }
 
 .recalled-file-container {
@@ -111,13 +111,13 @@
 }
 
 .log-preview-card {
-  background: linear-gradient(145deg, #2a2a2a 0%, #1e1e2e 100%);
-  border-radius: 16px;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-radius: var(--border-radius-lg);
   padding: 2rem;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(76, 79, 150, 0.2);
-  border: 1px solid rgba(76, 79, 150, 0.3);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--primary-blue-20);
+  border: 1px solid var(--primary-blue-30);
 }
 
 .log-preview-header {
@@ -126,7 +126,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(76, 79, 150, 0.2);
+  border-bottom: 1px solid var(--primary-blue-20);
 }
 
 .file-info {
@@ -144,12 +144,12 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .file-size {
-  color: #a0a0a0;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -209,10 +209,10 @@
 }
 
 .monospace-value {
-  font-family: 'Courier New', monospace;
-  background: rgba(76, 79, 150, 0.1);
+  font-family: var(--font-mono);
+  background: var(--primary-blue-10);
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 0.8rem;
 }
 

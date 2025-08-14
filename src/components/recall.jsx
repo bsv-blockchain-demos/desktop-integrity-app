@@ -257,7 +257,7 @@ function Recall() {
 
     return (
         <div className="main-container">
-            <div className="content-block recall-container">
+            <div className="content-block recall-container custom-scrollbar">
                 {!decryptedContent ? (
                     <div>
                         <h1 className="block-header">Recall Files</h1>
@@ -266,7 +266,7 @@ function Recall() {
                             <div>
                                 <div className="recall-section">
                                     <h2 className="block-header">Select a log</h2>
-                                    <div className="status-table-container">
+                                    <div className="status-table-container custom-scrollbar">
                                         <table className="status-table logs-table">
                                             <thead className="table-head">
                                                 <tr>

@@ -27,13 +27,12 @@
 
 .content-block {
   flex: 1;
-  background: rgba(30, 30, 46, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(76, 79, 150, 0.2);
-  border-radius: 12px;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-radius: var(--border-radius-lg);
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  height: 85%;
+  margin: 1rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--primary-blue-20);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -89,31 +88,7 @@
     max-height: 300px; /* Limit table height on mobile */
   }
   
-  /* Mobile-specific scrollbar styling */
-  .main-content::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .main-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-  }
-  
-  .main-content::-webkit-scrollbar-thumb {
-    background: rgba(76, 79, 150, 0.4);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-  
-  .main-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(76, 79, 150, 0.6);
-  }
-  
-  /* Firefox mobile scrollbar */
-  .main-content {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(76, 79, 150, 0.4) rgba(255, 255, 255, 0.05);
-  }
+  /* Scrollbar styles now handled by .custom-scrollbar utility class */
 }
 
 @media (max-width: 480px) {
@@ -248,41 +223,41 @@
   border-collapse: collapse;
   text-align: left;
   font-size: 0.9rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-primary);
 }
 
 .status-table th {
   position: sticky;
   top: 0;
   z-index: 999;
-  background: rgba(76, 79, 150, 1);
+  background: var(--primary-blue-100);
   backdrop-filter: blur(15px);
   padding: 1rem 0.75rem;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  color: var(--text-primary);
   font-weight: 700;
   cursor: default;
   text-align: center;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .status-table td {
   padding: 0.75rem;
-  border-bottom: 1px solid rgba(76, 79, 150, 0.1);
-  color: #e0e0e0;
+  border-bottom: 1px solid var(--primary-blue-10);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   transition: background-color 0.2s ease;
   text-align: center;
 }
 
 .status-table tr:nth-child(even) {
-  background-color: rgba(30, 30, 46, 0.3);
+  background-color: var(--bg-card);
 }
 
 .status-table tbody tr:hover {
-  background-color: rgba(76, 79, 150, 0.1);
+  background-color: var(--primary-blue-10);
   transform: scale(1.01);
 }
 
@@ -460,37 +435,6 @@
   margin: 0 auto;
 }
 
-/* Custom scrollbar styling for file preview */
-.file-preview::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.file-preview::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.file-preview::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.file-preview::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
-}
-
-.file-preview::-webkit-scrollbar-corner {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Firefox scrollbar styling for file preview */
-.file-preview {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.4) rgba(255, 255, 255, 0.05);
-}
-
 /* Status list styling */
 .status-list {
   list-style: none;
@@ -585,57 +529,6 @@
 
 .loading {
   animation: pulse 2s infinite;
-}
-
-/* Custom Scrollbar Styling */
-.status-table-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.status-table-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.status-table-container::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.status-table-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
-}
-
-.status-table-container::-webkit-scrollbar-corner {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Firefox scrollbar styling */
-.status-table-container {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.4) rgba(255, 255, 255, 0.05);
-}
-
-/* General scrollbar styling for all containers */
-.content-block::-webkit-scrollbar {
-  width: 8px;
-}
-
-.content-block::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.content-block::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.content-block::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.5);
 }
 
 /* Responsive layout */

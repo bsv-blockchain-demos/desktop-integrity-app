@@ -73,7 +73,7 @@ function Homepage() {
           <>
             <h1 className="block-header">File/Folder Picker</h1>
             {files.length !== 0 && (
-              <div className="file-preview">
+              <div className="file-preview custom-scrollbar">
                 <h3>Preview:</h3>
                 {fileContent.type === 'image' ? (
                   <img

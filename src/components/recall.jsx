@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '../../context/walletContext';
 import { getTransactionByTxID } from '../../hooks/transactions';
 import toast from 'react-hot-toast';
@@ -11,12 +11,33 @@ function Recall() {
     const [decryptedContent, setDecryptedContent] = useState(null);
     const [logs, setLogs] = useState([]);
     const [selectedLog, setSelectedLog] = useState(null);
+    const [logPreviewData, setLogPreviewData] = useState(null);
 
     useEffect(() => {
         const loadLogs = async () => {
             const logs = await window.electronAPI.listLogs();
-            setLogs(logs);
-            console.log("logs", logs);
+
+            // Sort logs by timestamp (newest first)
+            const sortedLogs = await Promise.all(
+                logs.map(async (logPath) => {
+                    try {
+                        const content = await window.electronAPI.readFile(logPath);
+                        const timeMatch = content.match(/Time: (.+)/);
+                        const timestamp = timeMatch ? new Date(timeMatch[1].replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1T$4:$5:$6')) : new Date(0);
+                        return { path: logPath, timestamp };
+                    } catch (error) {
+                        console.error('Error reading log file:', error);
+                        return { path: logPath, timestamp: new Date(0) };
+                    }
+                })
+            );
+
+            // Sort by timestamp (newest first) and extract paths
+            const sortedLogPaths = sortedLogs
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .map(log => log.path);
+
+            setLogs(sortedLogPaths);
         }
         loadLogs();
     }, []);
@@ -183,13 +204,64 @@ function Recall() {
         return data;
     }
 
+    // Load log preview data when a log is selected
+    const loadLogPreview = async (logPath) => {
+        try {
+            const rawContent = await window.electronAPI.readFile(logPath);
+            const parsedData = parseLogContent(rawContent.content);
+            setLogPreviewData(parsedData);
+        } catch (error) {
+            console.error('Error loading log preview:', error);
+            setLogPreviewData(null);
+        }
+    };
+
+    // Copy to clipboard function
+    const copyToClipboard = async (text, label) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast.success(`${label} copied to clipboard!`);
+        } catch (error) {
+            console.error('Failed to copy:', error);
+            toast.error('Failed to copy to clipboard');
+        }
+    };
+
+    // Format file size from bytes to MB
+    const formatFileSize = (sizeInBytes) => {
+        if (!sizeInBytes || sizeInBytes === 'N/A' || sizeInBytes === 'Unknown') {
+            return 'Unknown';
+        }
+        const sizeInMB = (parseInt(sizeInBytes) / (1024 * 1024)).toFixed(2);
+        return `${sizeInMB} MB`;
+    };
+
+    // Get file icon based on extension
+    const getFileIcon = (filename) => {
+        if (!filename) return '📄';
+        const extension = filename.split('.').pop()?.toLowerCase();
+        const iconMap = {
+            // Images
+            'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
+            // Documents
+            'pdf': '📕', 'doc': '📄', 'docx': '📄', 'txt': '📝', 'md': '📝',
+            // Data
+            'json': '📊', 'csv': '📊', 'xml': '📊',
+            // Archives
+            'zip': '📦', 'rar': '📦', '7z': '📦',
+            // Media
+            'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mp3': '🎵', 'wav': '🎵'
+        };
+        return iconMap[extension] || '📄';
+    };
+
     return (
         <div className="main-container">
             <div className="content-block recall-container">
                 {!decryptedContent ? (
                     <div>
                         <h1 className="block-header">Recall Files</h1>
-                        
+
                         {selectedLog === null ? (
                             <div>
                                 <div className="recall-section">
@@ -206,7 +278,10 @@ function Recall() {
                                                     logs.map((log) => {
                                                         const fileName = log.split(/[\\/]/).pop();
                                                         return (
-                                                            <tr key={fileName} onClick={() => setSelectedLog(log)}>
+                                                            <tr key={fileName} onClick={() => {
+                                                                setSelectedLog(log);
+                                                                loadLogPreview(log);
+                                                            }}>
                                                                 <td>{fileName}</td>
                                                             </tr>
                                                         )
@@ -220,27 +295,85 @@ function Recall() {
                                         </table>
                                     </div>
                                 </div>
-                                
+
                                 <div className="recall-section">
                                     <h2 className="block-header">Recall by Transaction ID</h2>
                                     <form className="recall-form" onSubmit={(e) => { e.preventDefault(); tryRecallFromTxID(txid); }}>
-                                        <input 
-                                            className="recall-input" 
-                                            type="text" 
-                                            placeholder="Enter transaction ID" 
-                                            onChange={(e) => setTxid(e.target.value)} 
+                                        <input
+                                            className="recall-input"
+                                            type="text"
+                                            placeholder="Enter transaction ID"
+                                            onChange={(e) => setTxid(e.target.value)}
                                         />
                                         <button className="recall-button" type="submit">Recall</button>
                                     </form>
                                 </div>
                             </div>
                         ) : (
-                            <div>
-                                <div className="selected-log-info">
-                                    <span className="selected-log-name">Selected Log: {selectedLog.split(/[\\/]/).pop()}</span>
-                                    <div className="selected-log-actions">
-                                        <button className="action-button small-button cancel" onClick={() => setSelectedLog(null)}>Cancel</button>
-                                        <button className="action-button small-button" onClick={() => tryRecallFromLogs()}>Recall</button>
+                            <div className="log-preview-container">
+                                <div className="log-preview-card">
+                                    <div className="log-preview-header">
+                                        <div className="file-info">
+                                            <span className="file-icon">{getFileIcon(logPreviewData?.SavedFile)}</span>
+                                            <div className="file-details">
+                                                <h3 className="file-name">{logPreviewData?.SavedFile || 'Unknown File'}</h3>
+                                                <span className="file-size">{formatFileSize(logPreviewData?.OriginalFileSize)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="log-status">
+                                            <span className="status-badge">Ready to Recall</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="log-preview-content">
+                                        <div className="log-metadata">
+                                            <div className="metadata-row">
+                                                <span className="metadata-label">Save Time:</span>
+                                                <span className="metadata-value">{logPreviewData?.Time || 'Unknown'}</span>
+                                            </div>
+                                            <div className="metadata-row">
+                                                <span className="metadata-label">Transaction ID:</span>
+                                                <div className="metadata-value-container">
+                                                    <span className="metadata-value monospace-value">
+                                                        {logPreviewData?.TxID ? `${logPreviewData.TxID.substring(0, 16)}...` : 'Unknown'}
+                                                    </span>
+                                                    {logPreviewData?.TxID && (
+                                                        <button
+                                                            className="copy-btn"
+                                                            onClick={() => copyToClipboard(logPreviewData.TxID, 'Transaction ID')}
+                                                            title="Copy Transaction ID"
+                                                        >
+                                                            📋
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="metadata-row">
+                                                <span className="metadata-label">Key ID:</span>
+                                                <div className="metadata-value-container">
+                                                    <span className="metadata-value monospace-value">
+                                                        {logPreviewData?.SavedWithKeyID || 'Unknown'}
+                                                    </span>
+                                                    {logPreviewData?.SavedWithKeyID && (
+                                                        <button
+                                                            className="copy-btn"
+                                                            onClick={() => copyToClipboard(logPreviewData.SavedWithKeyID, 'Key ID')}
+                                                            title="Copy Key ID"
+                                                        >
+                                                            📋
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="log-preview-actions">
+                                        <button className="action-button small-button cancel" onClick={() => {
+                                            setSelectedLog(null);
+                                            setLogPreviewData(null);
+                                        }}>Cancel</button>
+                                        <button className="action-button small-button" onClick={() => tryRecallFromLogs()}>Recall File</button>
                                     </div>
                                 </div>
                             </div>
@@ -257,14 +390,14 @@ function Recall() {
                                     <strong>Size:</strong> {(decryptedContent.data.length / 1024).toFixed(2)} KB
                                 </p>
                             </div>
-                            
+
                             <div>
                                 <h3>Preview</h3>
                                 <div className="recalled-file-preview">
                                     {getPreview(decryptedContent)}
                                 </div>
                             </div>
-                            
+
                             <div className="recalled-file-actions">
                                 <button className="recall-button" onClick={() => downloadFile(decryptedContent.data, decryptedContent.filename)}>Download File</button>
                                 <button className="recall-button secondary" onClick={() => setDecryptedContent(null)}>Recall Another File</button>

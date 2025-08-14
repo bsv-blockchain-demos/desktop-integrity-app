@@ -49,7 +49,8 @@
 }
 
 .recall-button.secondary:hover {
-  background-color: #777;
+  background-color: rgba(76, 79, 150, 0.3);
+  border-color: rgba(76, 79, 150, 0.5);
 }
 
 .recalled-file-container {
@@ -98,4 +99,175 @@
 .selected-log-actions {
   display: flex;
   gap: 10px;
+}
+
+/* Log Preview Card Styles */
+.log-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.log-preview-card {
+  background: linear-gradient(145deg, #2a2a2a 0%, #1e1e2e 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(76, 79, 150, 0.2);
+  border: 1px solid rgba(76, 79, 150, 0.3);
+}
+
+.log-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(76, 79, 150, 0.2);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.file-details h3.file-name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.file-size {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.log-status .status-badge {
+  background: linear-gradient(135deg, rgba(76, 79, 150, 0.8) 0%, rgba(76, 79, 150, 0.6) 100%);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(76, 79, 150, 0.3);
+}
+
+.log-preview-content {
+  margin-bottom: 2rem;
+}
+
+.log-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.metadata-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(76, 79, 150, 0.1);
+}
+
+.metadata-label {
+  font-weight: 600;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+
+.metadata-value {
+  color: #ffffff;
+  font-size: 0.9rem;
+  text-align: right;
+  flex: 1;
+}
+
+.metadata-value-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.monospace-value {
+  font-family: 'Courier New', monospace;
+  background: rgba(76, 79, 150, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.copy-btn:hover {
+  background: rgba(76, 79, 150, 0.2);
+  transform: scale(1.1);
+}
+
+.log-preview-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(76, 79, 150, 0.2);
+}
+
+/* Responsive design for log preview */
+@media (max-width: 768px) {
+  .log-preview-container {
+    padding: 1rem;
+    min-height: 300px;
+  }
+  
+  .log-preview-card {
+    padding: 1.5rem;
+  }
+  
+  .log-preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .metadata-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .metadata-value-container {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  
+  .log-preview-actions {
+    flex-direction: column;
+  }
 }

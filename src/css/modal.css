@@ -1,37 +1,84 @@
-/* Modal styling */
+/* Enhanced Modal styling */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-content {
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 800px;
-  max-height: 80vh;
+  background: linear-gradient(145deg, #2a2a2a 0%, #1e1e2e 100%);
+  border-radius: 16px;
+  width: 70%;
+  max-width: 700px;
+  max-height: 70vh;
+  min-height: 400px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(76, 79, 150, 0.2);
   display: flex;
   flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.enhanced-modal {
+  border: 1px solid rgba(76, 79, 150, 0.3);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(100, 108, 255, 0.1);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(76, 79, 150, 0.2);
+  background: linear-gradient(135deg, rgba(76, 79, 150, 0.15) 0%, rgba(76, 79, 150, 0.05) 100%);
+}
+
+.enhanced-header {
+  padding: 1.5rem 2rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.file-name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header h2 {
@@ -43,29 +90,216 @@
 .modal-close-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   cursor: pointer;
   color: #e1e1e1;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .modal-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #ff4444;
+  transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 1rem;
+  padding: 2rem;
   overflow-y: auto;
   flex: 1;
 }
 
+.enhanced-body {
+  padding: 2rem;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar styling for modal body */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(76, 79, 150, 0.4);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 79, 150, 0.6);
+}
+
+.modal-body::-webkit-scrollbar-corner {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Firefox scrollbar styling for modal */
+.modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 79, 150, 0.4) rgba(255, 255, 255, 0.05);
+}
+
+/* Metadata sections */
+.metadata-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #80bfff;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(76, 79, 150, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metadata-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metadata-row:last-child {
+  border-bottom: none;
+}
+
+.metadata-key {
+  flex: 0 0 180px;
+  font-weight: 500;
+  color: #aaaaaa;
+  font-size: 0.9rem;
+  text-align: right;
+  padding-right: 1rem;
+  text-transform: capitalize;
+}
+
+.metadata-value {
+  flex: 1;
+  color: #ffffff;
+  font-size: 0.9rem;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.metadata-value-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.monospace-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(76, 79, 150, 0.2);
+}
+
+.copy-btn {
+  background: rgba(76, 79, 150, 0.2);
+  border: 1px solid rgba(76, 79, 150, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #80bfff;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: rgba(76, 79, 150, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(76, 79, 150, 0.3);
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(76, 79, 150, 0.3) 50%, transparent 100%);
+  margin: 2rem 0;
+}
+
+/* Responsive design for modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+  
+  .modal-header, .enhanced-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-body, .enhanced-body {
+    padding: 1.5rem;
+  }
+  
+  .file-name {
+    font-size: 1.2rem;
+  }
+  
+  .metadata-key {
+    flex: 0 0 120px;
+    font-size: 0.8rem;
+  }
+  
+  .metadata-value {
+    font-size: 0.8rem;
+  }
+  
+  .file-info {
+    gap: 0.75rem;
+  }
+  
+  .file-icon {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metadata-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .metadata-key {
+    flex: none;
+    text-align: left;
+    padding-right: 0;
+    font-weight: 600;
+    color: #80bfff;
+  }
+  
+  .metadata-value, .metadata-value-container {
+    padding-left: 0;
+  }
+}
+
+/* Legacy styles for backward compatibility */
 .log-content-container {
   margin-top: 1rem;
 }

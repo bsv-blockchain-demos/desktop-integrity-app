@@ -58,6 +58,8 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 180px; /* Adjust for smaller sidebar */
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: calc(100vh - 32px); /* Ensure fixed height for scrolling */
   }
   
   .main-container {
@@ -65,12 +67,14 @@
     gap: 16px;
     padding: 0.75rem;
     height: auto; /* Allow natural height */
+    min-height: calc(100vh - 32px - 1.5rem); /* Minimum height to ensure scrolling works */
   }
   
   .content-block {
     height: auto;
     min-height: 300px;
     max-height: none; /* Remove height constraint on mobile */
+    flex-shrink: 0; /* Prevent cards from shrinking */
   }
   
   .file-picker-block {
@@ -83,6 +87,32 @@
   
   .status-table-container {
     max-height: 300px; /* Limit table height on mobile */
+  }
+  
+  /* Mobile-specific scrollbar styling */
+  .main-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .main-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  .main-content::-webkit-scrollbar-thumb {
+    background: rgba(76, 79, 150, 0.4);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .main-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 79, 150, 0.6);
+  }
+  
+  /* Firefox mobile scrollbar */
+  .main-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 79, 150, 0.4) rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -251,7 +281,7 @@
   background-color: rgba(30, 30, 46, 0.3);
 }
 
-.status-table tr:hover {
+.status-table tbody tr:hover {
   background-color: rgba(76, 79, 150, 0.1);
   transform: scale(1.01);
 }

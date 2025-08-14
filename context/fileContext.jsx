@@ -111,6 +111,7 @@ export function FileProvider({ children }) {
             const fileCreatedTS = stats.createdTS.replace('T', ' ');
             const fileModifiedTS = stats.modifiedTS.replace('T', ' ');
             const cleanFileName = fileName.replace(/\s\(\d+\)$/, '');
+            const originalFileSize = stats.size;
 
             const keyID = localStorage.getItem('keyID');
             const logData = `SavedFile: ${cleanFileName}
@@ -120,7 +121,8 @@ export function FileProvider({ children }) {
                 \nTxID: ${txID}
                 \nSatoshis: ${satoshis}
                 \nFileCreatedTS: ${fileCreatedTS}
-                \nFileModifiedTS: ${fileModifiedTS}`;
+                \nFileModifiedTS: ${fileModifiedTS}
+                \nOriginalFileSize: ${originalFileSize}`;
 
             await localKVStore.set(`${txID}`, keyID);
 

@@ -5,18 +5,18 @@
   top: 32px;
   width: 200px;
   height: calc(100vh - 32px);
-  background-color: #1a1a1a;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1e1e2e 0%, #181825 100%);
+  border-right: none;
   display: flex;
   flex-direction: column;
   z-index: 999;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
 }
 
 .sidebar-header {
   padding: 1.5rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: #0f0f0f;
+  border-bottom: none;
+  background: transparent;
 }
 
 .sidebar-title {
@@ -32,7 +32,7 @@
   padding: 1rem 0;
   display: flex;
   flex-direction: column;
-  background-color: #0f0f0f;
+  background: transparent;
 }
 
 .sidebar-btn {
@@ -41,7 +41,7 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   margin: 0.25rem 0.5rem;
-  background-color: #646cff;
+  background-color: #4c4f96;
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -53,15 +53,15 @@
 }
 
 .sidebar-btn:hover {
-  background-color: #535bf2;
+  background-color: #3d4080;
   transform: translateX(2px);
 }
 
 .sidebar-btn.active {
-  background-color: #252ed8;
-  box-shadow: 0 2px 8px rgba(37, 46, 216, 0.4);
+  background-color: #2d3066;
+  box-shadow: 0 2px 8px rgba(45, 48, 102, 0.4);
   position: relative;
-  border-left: 4px solid #646cff;
+  border-left: 4px solid #4c4f96;
 }
 
 .sidebar-btn.active::before {
@@ -85,13 +85,13 @@
 
 .sidebar-footer {
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: #0f0f0f;
+  border-top: none;
+  background: transparent;
 }
 
 .connect-wallet-btn {
   width: 100%;
-  background-color: #646cff;
+  background-color: #4c4f96;
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -110,7 +110,7 @@
 }
 
 .connect-wallet-btn:hover:not(.connected) {
-  background-color: #535bf2;
+  background-color: #3d4080;
 }
 
 .connect-wallet-btn:disabled:not(.connected) {

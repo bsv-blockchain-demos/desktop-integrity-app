@@ -15,6 +15,10 @@ function Verify() {
         // Get transaction by file hash
         const response = await getTransactionByFileHash(fileHash);
         console.log("response", response);
+        if (response.outputs.length === 0) {
+            console.error("No outputs found");
+            return;
+        }
         setResponse(response);
     }
 
@@ -70,7 +74,7 @@ function Verify() {
                             )}
                         </div>
                     )}
-                    {response.success ? (
+                    {response.outputs.length > 0 ? (
                         <p>File is verified</p>
                     ) : (
                         <p>File is not verified</p>

@@ -23,7 +23,8 @@ export async function createTransaction(fileContent, wallet, encryptedFileConten
                     lockingScript: new FileHash().lock(fileContent).toHex(),
                     satoshis: 1,
                 }
-            ]
+            ],
+            randomizeOutputs: false,
         });
 
         broadcastTransaction(response, encryptedFileContent);
@@ -47,9 +48,6 @@ export async function broadcastTransaction(response, encryptedFileContent) {
         // Lookup a service which accepts this type of token
          //const tb = new TopicBroadcaster(['tm_desktopintegrity'], {
         //     resolver: overlay,
-        //     requireAcknowledgmentFromSpecificHostsForTopics: {
-        //       'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
-        //     }
         //   })
 
         // Send the tx to that overlay.
@@ -89,10 +87,11 @@ export async function broadcastTransaction(response, encryptedFileContent) {
 
 export async function getTransactionByFileHash(hash) {
     try {
+        const hexHash = Utils.toHex(hash);
         // get transaction from overlay
         const response = await overlay.query({
             service: 'ls_desktopintegrity', query: {
-                fileHash: hash
+                fileHash: hexHash
             }
         }, 10000);
 

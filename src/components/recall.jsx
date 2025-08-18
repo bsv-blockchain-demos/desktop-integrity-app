@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '../../context/walletContext';
 import { getTransactionByTxID } from '../../hooks/transactions';
+import { Transaction } from '@bsv/sdk';
 import toast from 'react-hot-toast';
 import '../css/layout.css';
 import '../css/recall.css';
@@ -22,7 +23,8 @@ function Recall() {
                 logs.map(async (logPath) => {
                     try {
                         const content = await window.electronAPI.readFile(logPath);
-                        const timeMatch = content.match(/Time: (.+)/);
+                        const contentString = content.toString(); // Convert to string if it's a Buffer
+                        const timeMatch = contentString.match(/Time: (.+)/);
                         const timestamp = timeMatch ? new Date(timeMatch[1].replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1T$4:$5:$6')) : new Date(0);
                         return { path: logPath, timestamp };
                     } catch (error) {
@@ -60,7 +62,7 @@ function Recall() {
 
             // If keyID doesn't exist fallback to localKVStore
             if (!keyID) {
-                const localKeyID = localKVStore.get(txid);
+                const localKeyID = await localKVStore.get(txid);
                 if (!localKeyID) {
                     console.error("KeyID not found");
                     return;
@@ -72,8 +74,17 @@ function Recall() {
             const response = await getTransactionByTxID(txid);
             console.log("response", response);
 
+            if (response.outputs.length === 0) {
+                console.error("No outputs found");
+                return;
+            }
+
+            const transaction = Transaction.fromBEEF(response.outputs[0].beef);
+            console.log("transaction", transaction);
+
             // Get metadata from transaction
-            const metadata = response.metadata?.offChainValues;
+            const metadata = transaction.metadata.get('OffChainValues');
+            console.log("metadata", metadata);
 
             if (!wallet) {
                 console.error("Wallet not connected");
@@ -116,11 +127,20 @@ function Recall() {
             const response = await getTransactionByTxID(txid);
             console.log("response", response);
 
+            if (response.outputs.length === 0) {
+                console.error("No outputs found");
+                return;
+            }
+
+            const transaction = Transaction.fromBEEF(response.outputs[0].beef);
+            console.log("transaction", transaction);
+
             // Get metadata from transaction
-            const metadata = response.metadata.offChainValues;
+            const metadata = transaction.metadata.get('OffChainValues');
+            console.log("metadata", metadata);
 
             // Get keyID to decrypt file
-            const keyID = localKVStore.get(response.txid);
+            const keyID = await localKVStore.get(txid);
             console.log("keyID", keyID);
 
             if (!wallet) {

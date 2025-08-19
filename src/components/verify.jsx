@@ -17,6 +17,10 @@ function Verify() {
         console.log("response", response);
         if (response.outputs.length === 0) {
             console.error("No outputs found");
+            const emptyResponse = {
+                outputs: []
+            }
+            setResponse(emptyResponse);
             return;
         }
         setResponse(response);
@@ -60,7 +64,7 @@ function Verify() {
                 <div className="content-block file-picker-block">
                     <h1 className="block-header">File Integrity</h1>
                     {files.length !== 0 && (
-                        <div className="file-preview">
+                        <div className="file-preview custom-scrollbar">
                             <h3>Preview:</h3>
                             {fileContent.type === 'image' ? (
                                 <img
@@ -75,9 +79,9 @@ function Verify() {
                         </div>
                     )}
                     {response.outputs.length > 0 ? (
-                        <p>File is verified</p>
+                        <p className="verified">File is verified</p>
                     ) : (
-                        <p>File is not verified</p>
+                        <p className="not-verified">File is not verified</p>
                     )}
                     <button className="action-button cancel" onClick={() => {setResponse(null); setFiles([]); setFilePath('')}}>Exit</button>
                 </div>

@@ -18,21 +18,22 @@ function Recall() {
         const loadLogs = async () => {
             const logs = await window.electronAPI.listLogs();
 
-            // Sort logs by timestamp (newest first)
-            const sortedLogs = await Promise.all(
-                logs.map(async (logPath) => {
-                    try {
-                        const content = await window.electronAPI.readFile(logPath);
-                        const contentString = content.toString(); // Convert to string if it's a Buffer
-                        const timeMatch = contentString.match(/Time: (.+)/);
-                        const timestamp = timeMatch ? new Date(timeMatch[1].replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1T$4:$5:$6')) : new Date(0);
-                        return { path: logPath, timestamp };
-                    } catch (error) {
-                        console.error('Error reading log file:', error);
-                        return { path: logPath, timestamp: new Date(0) };
-                    }
-                })
-            );
+            // Sort logs by timestamp (newest first) - extract from filename like Logs component
+            const sortedLogs = logs.map((logPath) => {
+                // Extract filename from path
+                const fileName = logPath.split(/[\\/]/).pop();
+                // Extract timestamp from filename (assuming format like filename-YYYY-MM-DDThh-mm-ss.txt)
+                const timestampMatch = fileName.match(/-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})/);
+                
+                let timestamp = new Date(0); // Default to epoch if no timestamp found
+                if (timestampMatch) {
+                    // Convert to ISO format like "2025-08-03T14:32:10"
+                    const isoTimestamp = timestampMatch[1].replace('T', 'T').replace(/(\d{2})-(\d{2})-(\d{2})$/, (_, h, m, s) => `${h}:${m}:${s}`);
+                    timestamp = new Date(isoTimestamp);
+                }
+                
+                return { path: logPath, timestamp };
+            });
 
             // Sort by timestamp (newest first) and extract paths
             const sortedLogPaths = sortedLogs
@@ -76,6 +77,7 @@ function Recall() {
 
             if (response.outputs.length === 0) {
                 console.error("No outputs found");
+                toast.error("No transaction found");
                 return;
             }
 
@@ -129,6 +131,7 @@ function Recall() {
 
             if (response.outputs.length === 0) {
                 console.error("No outputs found");
+                toast.error("No transaction found");
                 return;
             }
 

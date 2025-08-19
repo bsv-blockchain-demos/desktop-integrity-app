@@ -7,8 +7,10 @@
 }
 
 .main-content {
-  margin-left: 200px; /* Space for the sidebar */
-  margin-top: 32px; /* Space for the topbar */
+  margin-left: 200px;
+  /* Space for the sidebar */
+  margin-top: 32px;
+  /* Space for the topbar */
   flex: 1;
   overflow: hidden;
   height: calc(100vh - 32px);
@@ -21,7 +23,8 @@
   padding: 1rem;
   box-sizing: border-box;
   gap: 24px;
-  height: calc(100vh - 32px - 2rem); /* Full viewport height minus topbar and padding */
+  height: calc(100vh - 32px - 2rem);
+  /* Full viewport height minus topbar and padding */
   overflow: hidden;
 }
 
@@ -56,38 +59,46 @@
 /* Responsive design for mobile devices */
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 180px; /* Adjust for smaller sidebar */
-    overflow-y: auto; /* Enable vertical scrolling */
-    height: calc(100vh - 32px); /* Ensure fixed height for scrolling */
+    margin-left: 180px;
+    /* Adjust for smaller sidebar */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    height: calc(100vh - 32px);
+    /* Ensure fixed height for scrolling */
   }
-  
+
   .main-container {
     flex-direction: column;
     gap: 16px;
     padding: 0.75rem;
-    height: auto; /* Allow natural height */
-    min-height: calc(100vh - 32px - 1.5rem); /* Minimum height to ensure scrolling works */
+    height: auto;
+    /* Allow natural height */
+    min-height: calc(100vh - 32px - 1.5rem);
+    /* Minimum height to ensure scrolling works */
   }
-  
+
   .content-block {
     height: auto;
     min-height: 300px;
-    max-height: none; /* Remove height constraint on mobile */
-    flex-shrink: 0; /* Prevent cards from shrinking */
+    max-height: none;
+    /* Remove height constraint on mobile */
+    flex-shrink: 0;
+    /* Prevent cards from shrinking */
   }
-  
+
   .file-picker-block {
     order: 1;
   }
-  
+
   .status-block {
     order: 2;
   }
-  
+
   .status-table-container {
-    max-height: 300px; /* Limit table height on mobile */
+    max-height: 300px;
+    /* Limit table height on mobile */
   }
-  
+
   /* Scrollbar styles now handled by .custom-scrollbar utility class */
 }
 
@@ -95,12 +106,12 @@
   .main-content {
     margin-left: 160px;
   }
-  
+
   .main-container {
     padding: 0.5rem;
     gap: 12px;
   }
-  
+
   .content-block {
     padding: 1.5rem;
     min-height: 250px;
@@ -199,15 +210,31 @@
 
 /* Flash animations for success/failure feedback */
 @keyframes flashSuccess {
-  0% { background-color: rgba(16, 185, 129, 0.3); }
-  50% { background-color: rgba(16, 185, 129, 0.6); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(16, 185, 129, 0.3);
+  }
+
+  50% {
+    background-color: rgba(16, 185, 129, 0.6);
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
 @keyframes flashError {
-  0% { background-color: rgba(239, 68, 68, 0.3); }
-  50% { background-color: rgba(239, 68, 68, 0.6); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(239, 68, 68, 0.3);
+  }
+
+  50% {
+    background-color: rgba(239, 68, 68, 0.6);
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
 .status-table tr.flash-success {
@@ -277,6 +304,7 @@
     background: rgba(16, 185, 129, 0.3);
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
   }
+
   100% {
     background: rgba(16, 185, 129, 0.1);
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
@@ -483,26 +511,55 @@
 }
 
 .table-head {
-    position: sticky;
-    cursor: default;
-    top: 0;
-    z-index: 100;
-    background: rgba(99, 102, 241, 1);
-    backdrop-filter: blur(15px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+  position: sticky;
+  cursor: default;
+  top: 0;
+  z-index: 100;
+  background: rgba(99, 102, 241, 1);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid rgba(99, 102, 241, 0.3);
 }
 
 .verify-container {
-    display: flex;
-    width: 100%;
-    padding: 1rem;
-    margin-top: 70px;
-    box-sizing: border-box;
-    gap: 24px;
-    height: calc(100vh - 90px);
-    align-items: flex-start;
-    justify-content: center;
+  display: flex;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 70px;
+  box-sizing: border-box;
+  gap: 24px;
+  height: calc(100vh - 90px);
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.verified {
+  background-color: #10b981;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  max-width: 200px;
+  text-align: center;
+  margin: 1rem auto;
+  display: inline-block;
+  width: fit-content;
+}
+
+
+.not-verified {
+  background-color: #ef4444;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  max-width: 200px;
+  text-align: center;
+  margin: 1rem auto;
+  display: inline-block;
+  width: fit-content;
 }
 
 /* Fade-in animation */
@@ -511,6 +568,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -519,9 +577,12 @@
 
 /* Pulse animation for loading states */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -538,17 +599,17 @@
     gap: 16px;
     padding: 0.5rem;
   }
-  
+
   .content-block {
     padding: 1.5rem;
     height: auto;
     min-height: 300px;
   }
-  
+
   .file-drop-area {
     padding: 2rem 1rem;
   }
-  
+
   .action-button {
     padding: 0.75rem 1.25rem;
     font-size: 0.85rem;

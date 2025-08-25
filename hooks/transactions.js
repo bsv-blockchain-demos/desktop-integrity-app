@@ -24,7 +24,9 @@ export async function createTransaction(fileContent, wallet, encryptedFileConten
                     satoshis: 1,
                 }
             ],
-            randomizeOutputs: false,
+            options: {
+                randomizeOutputs: false,
+            },
         });
 
         broadcastTransaction(response, encryptedFileContent);

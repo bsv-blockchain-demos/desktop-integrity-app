@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useFile } from '../../context/fileContext.jsx';
 import { Hash, Utils } from '@bsv/sdk';
 import { getTransactionByFileHash } from '../../hooks/transactions';
@@ -6,6 +6,14 @@ import { getTransactionByFileHash } from '../../hooks/transactions';
 function Verify() {
     const { files, fileContent, setFilePath, setFiles, handleCancel } = useFile();
     const [response, setResponse] = useState(null);
+
+    useEffect(() => {
+        const clearFileState = () => {
+          setFiles([]);
+          setFilePath('');
+        }
+        clearFileState();
+      }, []);
 
     const handleVerify = async () => {
         // Get file hash to compare with hash in Overlay

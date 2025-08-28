@@ -422,6 +422,10 @@
 .action-button.cancel {
   background-color: #6b7280;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  width: auto;
+  padding: 0.75rem 1rem;
+  margin: 0 auto;
 }
 
 .action-button.cancel:hover {

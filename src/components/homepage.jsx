@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useFile } from '../../context/fileContext.jsx';
 import Status from './status';
 import '../css/layout.css';
@@ -20,6 +20,14 @@ function Homepage() {
       console.error("Electron API not available");
     }
   };
+
+  useEffect(() => {
+    const clearFileState = () => {
+      setFiles([]);
+      setFilePath('');
+    }
+    clearFileState();
+  }, []);
 
   // Let user drag and drop files
   const handleDrop = useCallback(async (e) => {

@@ -20,6 +20,8 @@ export function FileProvider({ children }) {
                 const content = await window.electronAPI.readFile(files);
                 console.log("content", content);
                 setFileContent(content);
+            } else {
+                setFileContent('');
             }
         }
         fetchContent();

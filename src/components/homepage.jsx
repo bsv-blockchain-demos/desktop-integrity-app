@@ -97,7 +97,7 @@ function Homepage() {
               </div>
             )}
 
-            <div style={{ marginTop: '1rem' }}>
+            <div className="button-container">
               <button className="action-button cancel" onClick={handleCancel}>Cancel</button>
               <button className="action-button" onClick={handleSaveClick}>Save to blockchain</button>
             </div>

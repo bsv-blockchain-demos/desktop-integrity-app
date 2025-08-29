@@ -91,7 +91,9 @@ function Verify() {
                     ) : (
                         <p className="not-verified">File is not verified</p>
                     )}
-                    <button className="action-button cancel" onClick={() => {setResponse(null); setFiles([]); setFilePath('')}}>Exit</button>
+                    <div className="button-container">
+                        <button className="action-button cancel" onClick={() => {setResponse(null); setFiles([]); setFilePath('')}}>Exit</button>
+                    </div>
                 </div>
             </div>
         )
@@ -136,7 +138,7 @@ function Verify() {
                             </div>
                         )}
 
-                        <div style={{ marginTop: '1rem' }}>
+                        <div className="button-container">
                             <button className="action-button cancel" onClick={handleCancel}>Cancel</button>
                             <button className="action-button" onClick={handleVerify}>Verify</button>
                         </div>

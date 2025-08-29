@@ -130,6 +130,13 @@ function Verify() {
                                         src={fileContent.content}
                                         alt="Preview"
                                     />
+                                ) : fileContent.type === 'pdf' ? (
+                                    <embed
+                                        src={fileContent.content}
+                                        width="100%"
+                                        height="600px"
+                                        title="PDF Preview"
+                                    />
                                 ) : (
                                     <pre>
                                         {fileContent.content}

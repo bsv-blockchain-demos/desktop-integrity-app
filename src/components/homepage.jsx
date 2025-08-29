@@ -89,6 +89,13 @@ function Homepage() {
                     alt="Preview"
                     style={{ maxWidth: '100%', borderRadius: '6px' }}
                   />
+                ) : fileContent.type === 'pdf' ? (
+                  <embed
+                    src={fileContent.content}
+                    width="100%"
+                    height="600px"
+                    title="PDF Preview"
+                  />
                 ) : (
                   <pre>
                     {fileContent.content}

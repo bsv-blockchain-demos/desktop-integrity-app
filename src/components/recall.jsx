@@ -196,6 +196,10 @@ function Recall() {
             return <img src={url} alt="Decrypted Image" style={{ maxWidth: '300px', marginTop: '1rem' }} />;
         }
 
+        if (extension === 'pdf') {
+            return <embed src={url} alt="Decrypted PDF" style={{ maxWidth: '300px', marginTop: '1rem' }} />;
+        }
+
         if (['txt', 'json', 'csv', 'md', 'html'].includes(extension)) {
             // Text preview
             return (

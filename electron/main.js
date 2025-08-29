@@ -117,10 +117,15 @@ ipcMain.handle('file:read', async (event, filePath) => {
     const name = path.basename(filePath);
 
     const isImage = ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext);
+    const isPDF = ext === '.pdf';
+
     if (isImage) {
       const mime = ext === '.jpg' ? 'jpeg' : ext.replace('.', '');
       const base64 = buffer.toString('base64');
       return { type: 'image', content: `data:image/${mime};base64,${base64}`, name };
+    } else if (isPDF) {
+      const base64 = buffer.toString('base64');
+      return { type: 'pdf', content: `data:application/pdf;base64,${base64}`, name };
     } else {
       const text = buffer.toString('utf8');
       return { type: 'text', content: text, name };

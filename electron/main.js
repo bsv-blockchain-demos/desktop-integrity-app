@@ -118,6 +118,7 @@ ipcMain.handle('file:read', async (event, filePath) => {
 
     const isImage = ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext);
     const isPDF = ext === '.pdf';
+    const isText = ['.txt', '.json', '.csv', '.md', '.html'].includes(ext);
 
     if (isImage) {
       const mime = ext === '.jpg' ? 'jpeg' : ext.replace('.', '');
@@ -126,9 +127,11 @@ ipcMain.handle('file:read', async (event, filePath) => {
     } else if (isPDF) {
       const base64 = buffer.toString('base64');
       return { type: 'pdf', content: `data:application/pdf;base64,${base64}`, name };
-    } else {
+    } else if (isText) {
       const text = buffer.toString('utf8');
       return { type: 'text', content: text, name };
+    } else {
+      return { type: 'binary', content: buffer, name };
     }
   } catch (err) {
     console.error('Failed to read file:', err);

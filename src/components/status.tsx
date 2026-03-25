@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import type { SavedFile } from '../../types/index';
 
-function Status({ savedFiles }) {
-  const [expandedTxIds, setExpandedTxIds] = useState([]);
+function Status({ savedFiles }: { savedFiles: SavedFile[] }) {
+  const [expandedTxIds, setExpandedTxIds] = useState<number[]>([]);
 
-  const copyToClipboard = async (txId) => {
+  const copyToClipboard = async (txId: string) => {
     try {
       await navigator.clipboard.writeText(txId);
       toast.success('Transaction ID copied to clipboard!');
@@ -34,39 +35,36 @@ function Status({ savedFiles }) {
 
                 return (
                   <tr key={index} className={isSuccess ? 'success' : 'failed'}>
-                    <td 
+                    <td
                       className={`transaction-id ${expandedTxIds.includes(index) ? 'show-full' : ''}`}
                       onClick={() => {
-                        if (!isSuccess) return; // Only allow clicking on successful transactions
-                        
+                        if (!isSuccess) return;
                         if (expandedTxIds.includes(index)) {
-                          // If already expanded, copy to clipboard
                           copyToClipboard(file.status.txID);
                           setExpandedTxIds(expandedTxIds.filter(id => id !== index));
                         } else {
-                          // If collapsed, expand it
                           setExpandedTxIds([...expandedTxIds, index]);
                         }
                       }}
                     >
-                      {file.status?.txID || 'Failed'}
+                      {file.status?.txID ?? 'Failed'}
                     </td>
                     <td>{file.fileName}</td>
-                    <td>{file.status?.satoshis || 'Failed'}</td>
-                    <td>{file.status?.time || 'N/A'}</td>
+                    <td>{file.status?.satoshis ?? 'Failed'}</td>
+                    <td>{file.status?.time ?? 'N/A'}</td>
                   </tr>
                 );
               })
             ) : (
               <tr className="empty-row">
-                <td colSpan="4">No files have been saved yet.</td>
+                <td colSpan={4}>No files have been saved yet.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
     </>
-  )
+  );
 }
 
 export default Status;

@@ -5,43 +5,44 @@ import { Transaction } from '@bsv/sdk';
 import toast from 'react-hot-toast';
 import '../css/layout.css';
 import '../css/recall.css';
+import type { LogData } from '../../types/index';
+
+interface DecryptedFile {
+    data: number[];
+    filename: string | null;
+}
 
 function Recall() {
     const { localKVStore, wallet } = useWallet();
     const [txid, setTxid] = useState('');
-    const [decryptedContent, setDecryptedContent] = useState(null);
-    const [logs, setLogs] = useState([]);
-    const [selectedLog, setSelectedLog] = useState(null);
-    const [logPreviewData, setLogPreviewData] = useState(null);
+    const [decryptedContent, setDecryptedContent] = useState<DecryptedFile | null>(null);
+    const [logs, setLogs] = useState<string[]>([]);
+    const [selectedLog, setSelectedLog] = useState<string | null>(null);
+    const [logPreviewData, setLogPreviewData] = useState<LogData | null>(null);
 
     useEffect(() => {
         const loadLogs = async () => {
-            const logs = await window.electronAPI.listLogs();
+            const logPaths = await window.electronAPI.listLogs();
 
-            // Sort logs by timestamp (newest first) - extract from filename like Logs component
-            const sortedLogs = logs.map((logPath) => {
-                // Extract filename from path
-                const fileName = logPath.split(/[\\/]/).pop();
-                // Extract timestamp from filename (assuming format like filename-YYYY-MM-DDThh-mm-ss.txt)
+            const sortedLogs = logPaths.map((logPath) => {
+                const fileName = logPath.split(/[\\/]/).pop() ?? '';
                 const timestampMatch = fileName.match(/-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})/);
-                
-                let timestamp = new Date(0); // Default to epoch if no timestamp found
+
+                let timestamp = new Date(0);
                 if (timestampMatch) {
-                    // Convert to ISO format like "2025-08-03T14:32:10"
-                    const isoTimestamp = timestampMatch[1].replace('T', 'T').replace(/(\d{2})-(\d{2})-(\d{2})$/, (_, h, m, s) => `${h}:${m}:${s}`);
+                    const isoTimestamp = timestampMatch[1].replace(/(\d{2})-(\d{2})-(\d{2})$/, (_, h, m, s) => `${h}:${m}:${s}`);
                     timestamp = new Date(isoTimestamp);
                 }
-                
+
                 return { path: logPath, timestamp };
             });
 
-            // Sort by timestamp (newest first) and extract paths
             const sortedLogPaths = sortedLogs
-                .sort((a, b) => b.timestamp - a.timestamp)
+                .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
                 .map(log => log.path);
 
             setLogs(sortedLogPaths);
-        }
+        };
         loadLogs();
     }, []);
 
@@ -57,21 +58,24 @@ function Recall() {
             const objectContent = parseLogContent(rawContent.content);
             console.log("objectContent", objectContent);
 
-            // Get txid and keyID from log
             const txid = objectContent.TxID;
             let keyID = objectContent.SavedWithKeyID;
 
-            // If keyID doesn't exist fallback to localKVStore
+            if (!txid) {
+                toast.error("TxID not found in log");
+                return;
+            }
+
             if (!keyID) {
                 const localKeyID = await localKVStore.get(txid);
                 if (!localKeyID) {
                     console.error("KeyID not found");
+                    toast.error("KeyID not found");
                     return;
                 }
-                keyID = localKeyID;
+                keyID = localKeyID as string;
             }
 
-            // Get transaction by txid
             const response = await getTransactionByTxID(txid);
             console.log("response", response);
 
@@ -81,11 +85,10 @@ function Recall() {
                 return;
             }
 
-            const transaction = Transaction.fromBEEF(response.outputs[0].beef);
+            const transaction = Transaction.fromBEEF((response.outputs[0] as { beef: number[] }).beef);
             console.log("transaction", transaction);
 
-            // Get metadata from transaction
-            const metadata = transaction.metadata.get('OffChainValues');
+            const metadata = (transaction.metadata as Map<string, number[]>).get('OffChainValues');
             console.log("metadata", metadata);
 
             if (!wallet) {
@@ -94,17 +97,16 @@ function Recall() {
                 return;
             }
 
-            // Decrypt metadata
-            const decryptedContent = await wallet.decrypt({
+            const { plaintext } = await wallet.decrypt({
                 protocolID: [0, 'fileintegrity'],
                 keyID,
-                encryptedContent: metadata,
+                ciphertext: metadata ?? [],
             });
 
-            console.log("decryptedContent", decryptedContent);
+            console.log("decryptedContent", plaintext);
             setDecryptedContent({
-                data: decryptedContent,
-                filename: objectContent.SavedFile || null,
+                data: plaintext,
+                filename: objectContent.SavedFile ?? null,
             });
             setSelectedLog(null);
         } catch (error) {
@@ -113,57 +115,46 @@ function Recall() {
         }
     }
 
-    async function tryRecallFromTxID(txid) {
+    async function tryRecallFromTxID(txid: string) {
         try {
             if (!txid) {
-                console.error("No txid provided");
                 toast.error("No txid provided");
                 return;
             } else if (txid.length !== 64) {
-                console.error("Invalid txid");
                 toast.error("Invalid txid");
                 return;
             }
 
-            // Get transaction by txid
             const response = await getTransactionByTxID(txid);
             console.log("response", response);
 
             if (response.outputs.length === 0) {
-                console.error("No outputs found");
                 toast.error("No transaction found");
                 return;
             }
 
-            const transaction = Transaction.fromBEEF(response.outputs[0].beef);
+            const transaction = Transaction.fromBEEF((response.outputs[0] as { beef: number[] }).beef);
             console.log("transaction", transaction);
 
-            // Get metadata from transaction
-            const metadata = transaction.metadata.get('OffChainValues');
+            const metadata = (transaction.metadata as Map<string, number[]>).get('OffChainValues');
             console.log("metadata", metadata);
 
-            // Get keyID to decrypt file
             const keyID = await localKVStore.get(txid);
             console.log("keyID", keyID);
 
             if (!wallet) {
-                console.error("Wallet not connected");
                 toast.error("Wallet not connected");
                 return;
             }
 
-            // Decrypt metadata
-            const decryptedContent = await wallet.decrypt({
+            const { plaintext } = await wallet.decrypt({
                 protocolID: [0, 'fileintegrity'],
-                keyID,
-                encryptedContent: metadata,
+                keyID: keyID as string,
+                ciphertext: metadata ?? [],
             });
 
-            console.log("decryptedContent", decryptedContent);
-            setDecryptedContent({
-                data: decryptedContent,
-                filename: "file",
-            });
+            console.log("decryptedContent", plaintext);
+            setDecryptedContent({ data: plaintext, filename: "file" });
             setSelectedLog(null);
         } catch (error) {
             console.error("Error getting transaction by txid:", error);
@@ -171,115 +162,88 @@ function Recall() {
         }
     }
 
-    // Download file
-    async function downloadFile(content, fileName) {
-        // Get content from binary
-        const buffer = content instanceof Uint8Array ? content : new Uint8Array(content);
-
-        // Save file
-        await window.electronAPI.saveDecryptedFile(buffer, fileName);
+    async function downloadFile(content: number[], fileName: string | null) {
+        const buffer = new Uint8Array(content);
+        await window.electronAPI.saveDecryptedFile(buffer, fileName ?? 'recalled_file');
     }
 
-    function getPreview(decryptedContent) {
-        if (!decryptedContent) return null;
-
-        const { data, filename } = decryptedContent;
-        const buffer = data instanceof Uint8Array ? data : new Uint8Array(data);
-
+    function getPreview(dc: DecryptedFile) {
+        const { data, filename } = dc;
+        const buffer = new Uint8Array(data);
         const blob = new Blob([buffer]);
         const url = URL.createObjectURL(blob);
+        const ext = filename?.split('.').pop()?.toLowerCase() ?? '';
 
-        const extension = filename?.split('.').pop()?.toLowerCase();
-
-        if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'].includes(extension)) {
-            // Image preview
+        if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg', 'ico'].includes(ext)) {
             return <img src={url} alt="Decrypted Image" style={{ maxWidth: '300px', marginTop: '1rem' }} />;
         }
-
-        if (extension === 'pdf') {
-            return <embed src={url} alt="Decrypted PDF" style={{ maxWidth: '300px', marginTop: '1rem' }} />;
+        if (ext === 'pdf') {
+            return <embed src={url} width="100%" height="400px" title="Decrypted PDF" style={{ marginTop: '1rem' }} />;
         }
-
-        if (['txt', 'json', 'csv', 'md', 'html'].includes(extension)) {
-            // Text preview
+        if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'opus'].includes(ext)) {
+            return <audio controls src={url} style={{ width: '100%', marginTop: '1rem' }} />;
+        }
+        if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) {
+            return <video controls src={url} style={{ maxWidth: '100%', marginTop: '1rem' }} />;
+        }
+        if (['txt', 'json', 'csv', 'md', 'html', 'xml', 'yaml', 'yml', 'ts', 'js', 'py'].includes(ext)) {
             return (
                 <div style={{ whiteSpace: 'pre-wrap', maxHeight: '200px', overflow: 'auto', marginTop: '1rem' }}>
                     <pre>{new TextDecoder().decode(buffer)}</pre>
                 </div>
             );
         }
-
-        // Unknown file type
-        return (
-            <div style={{ marginTop: '1rem' }}>
-                <p>Preview not available for this file type.</p>
-            </div>
-        );
+        return <p style={{ marginTop: '1rem' }}>Preview not available for this file type.</p>;
     }
 
-    function parseLogContent(text) {
+    function parseLogContent(text: string): LogData {
         const lines = text.split('\n');
-        const data = {};
-
+        const data: LogData = {};
         for (const line of lines) {
             const [key, ...rest] = line.trim().split(':');
             if (key && rest.length) {
                 data[key.trim()] = rest.join(':').trim();
             }
         }
-
         return data;
     }
 
-    // Load log preview data when a log is selected
-    const loadLogPreview = async (logPath) => {
+    const loadLogPreview = async (logPath: string) => {
         try {
             const rawContent = await window.electronAPI.readFile(logPath);
-            const parsedData = parseLogContent(rawContent.content);
-            setLogPreviewData(parsedData);
+            setLogPreviewData(parseLogContent(rawContent.content));
         } catch (error) {
             console.error('Error loading log preview:', error);
             setLogPreviewData(null);
         }
     };
 
-    // Copy to clipboard function
-    const copyToClipboard = async (text, label) => {
+    const copyToClipboard = async (text: string, label: string) => {
         try {
             await navigator.clipboard.writeText(text);
             toast.success(`${label} copied to clipboard!`);
-        } catch (error) {
-            console.error('Failed to copy:', error);
+        } catch {
             toast.error('Failed to copy to clipboard');
         }
     };
 
-    // Format file size from bytes to MB
-    const formatFileSize = (sizeInBytes) => {
-        if (!sizeInBytes || sizeInBytes === 'N/A' || sizeInBytes === 'Unknown') {
-            return 'Unknown';
-        }
+    const formatFileSize = (sizeInBytes?: string) => {
+        if (!sizeInBytes || sizeInBytes === 'N/A' || sizeInBytes === 'Unknown') return 'Unknown';
         const sizeInMB = (parseInt(sizeInBytes) / (1024 * 1024)).toFixed(2);
         return `${sizeInMB} MB`;
     };
 
-    // Get file icon based on extension
-    const getFileIcon = (filename) => {
+    const getFileIcon = (filename?: string) => {
         if (!filename) return '📄';
-        const extension = filename.split('.').pop()?.toLowerCase();
-        const iconMap = {
-            // Images
+        const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+        const iconMap: Record<string, string> = {
             'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
-            // Documents
             'pdf': '📕', 'doc': '📄', 'docx': '📄', 'txt': '📝', 'md': '📝',
-            // Data
             'json': '📊', 'csv': '📊', 'xml': '📊',
-            // Archives
             'zip': '📦', 'rar': '📦', '7z': '📦',
-            // Media
-            'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mp3': '🎵', 'wav': '🎵'
+            'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mp3': '🎵', 'wav': '🎵',
         };
-        return iconMap[extension] || '📄';
+        return iconMap[ext] ?? '📄';
     };
 
     return (
@@ -296,9 +260,7 @@ function Recall() {
                                     <div className="status-table-container custom-scrollbar">
                                         <table className="status-table logs-table">
                                             <thead className="table-head">
-                                                <tr>
-                                                    <th>File Name</th>
-                                                </tr>
+                                                <tr><th>File Name</th></tr>
                                             </thead>
                                             <tbody>
                                                 {logs.length > 0 ? (
@@ -311,7 +273,7 @@ function Recall() {
                                                             }}>
                                                                 <td>{fileName}</td>
                                                             </tr>
-                                                        )
+                                                        );
                                                     })
                                                 ) : (
                                                     <tr className="empty-row">
@@ -343,7 +305,7 @@ function Recall() {
                                         <div className="file-info">
                                             <span className="file-icon">{getFileIcon(logPreviewData?.SavedFile)}</span>
                                             <div className="file-details">
-                                                <h3 className="file-name">{logPreviewData?.SavedFile || 'Unknown File'}</h3>
+                                                <h3 className="file-name">{logPreviewData?.SavedFile ?? 'Unknown File'}</h3>
                                                 <span className="file-size">{formatFileSize(logPreviewData?.OriginalFileSize)}</span>
                                             </div>
                                         </div>
@@ -356,7 +318,7 @@ function Recall() {
                                         <div className="log-metadata">
                                             <div className="metadata-row">
                                                 <span className="metadata-label">Save Time:</span>
-                                                <span className="metadata-value">{logPreviewData?.Time || 'Unknown'}</span>
+                                                <span className="metadata-value">{logPreviewData?.Time ?? 'Unknown'}</span>
                                             </div>
                                             <div className="metadata-row">
                                                 <span className="metadata-label">Transaction ID:</span>
@@ -365,13 +327,7 @@ function Recall() {
                                                         {logPreviewData?.TxID ? `${logPreviewData.TxID.substring(0, 16)}...` : 'Unknown'}
                                                     </span>
                                                     {logPreviewData?.TxID && (
-                                                        <button
-                                                            className="copy-btn"
-                                                            onClick={() => copyToClipboard(logPreviewData.TxID, 'Transaction ID')}
-                                                            title="Copy Transaction ID"
-                                                        >
-                                                            📋
-                                                        </button>
+                                                        <button className="copy-btn" onClick={() => copyToClipboard(logPreviewData.TxID!, 'Transaction ID')} title="Copy Transaction ID">📋</button>
                                                     )}
                                                 </div>
                                             </div>
@@ -379,16 +335,10 @@ function Recall() {
                                                 <span className="metadata-label">Key ID:</span>
                                                 <div className="metadata-value-container">
                                                     <span className="metadata-value monospace-value">
-                                                        {logPreviewData?.SavedWithKeyID || 'Unknown'}
+                                                        {logPreviewData?.SavedWithKeyID ?? 'Unknown'}
                                                     </span>
                                                     {logPreviewData?.SavedWithKeyID && (
-                                                        <button
-                                                            className="copy-btn"
-                                                            onClick={() => copyToClipboard(logPreviewData.SavedWithKeyID, 'Key ID')}
-                                                            title="Copy Key ID"
-                                                        >
-                                                            📋
-                                                        </button>
+                                                        <button className="copy-btn" onClick={() => copyToClipboard(logPreviewData.SavedWithKeyID!, 'Key ID')} title="Copy Key ID">📋</button>
                                                     )}
                                                 </div>
                                             </div>
@@ -396,10 +346,7 @@ function Recall() {
                                     </div>
 
                                     <div className="log-preview-actions">
-                                        <button className="action-button small-button cancel" onClick={() => {
-                                            setSelectedLog(null);
-                                            setLogPreviewData(null);
-                                        }}>Cancel</button>
+                                        <button className="action-button small-button cancel" onClick={() => { setSelectedLog(null); setLogPreviewData(null); }}>Cancel</button>
                                         <button className="action-button small-button" onClick={() => tryRecallFromLogs()}>Recall File</button>
                                     </div>
                                 </div>

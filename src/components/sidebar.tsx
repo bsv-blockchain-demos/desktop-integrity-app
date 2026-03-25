@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useWallet } from '../../context/walletContext.jsx';
+import { useWallet } from '../../context/walletContext';
 import '../css/sidebar.css';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ function Sidebar() {
         return;
     };
 
-    const isActive = (path) => location.pathname === path;
+    const isActive = (path: string) => location.pathname === path;
 
     return (
         <div className="sidebar"> 
@@ -58,7 +58,7 @@ function Sidebar() {
                 <button
                     className={`connect-wallet-btn ${wallet ? 'connected' : ''}`}
                     onClick={handleConnectWallet}
-                    disabled={loading || wallet}
+                    disabled={loading || !!wallet}
                 >
                     {loading ? 'Connecting...' : wallet ? 'Wallet Connected' : 'Connect Wallet'}
                 </button>

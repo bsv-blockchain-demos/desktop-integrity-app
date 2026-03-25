@@ -3,33 +3,42 @@ import React, { createContext, useContext, useCallback, useState, useRef } from 
 import useClearLocalStorageOnQuit from '../hooks/clearStorage';
 import { toast } from 'react-hot-toast';
 
-export async function checkWalletConnection(wallet) {
-    const isConnected = await wallet.isAuthenticated();
-    if (isConnected) {
-        return true;
-    }
-    return false;
+interface WalletContextType {
+    wallet: WalletClient | null;
+    pubKey: string | null;
+    derivedPubKey: string | null;
+    keyID: string;
+    localKVStore: LocalKVStore;
+    checkWalletConnection: (wallet: WalletClient) => Promise<boolean>;
+    initializeWallet: () => Promise<void>;
 }
 
-const WalletContext = createContext({});
+export async function checkWalletConnection(wallet: WalletClient): Promise<boolean> {
+    const result = await wallet.isAuthenticated();
+    return !!result;
+}
+
+const WalletContext = createContext<WalletContextType>({} as WalletContextType);
 export const useWallet = () => useContext(WalletContext);
 
-export function WalletProvider({ children }) {
-    const [wallet, setWallet] = useState(null);
-    const [pubKey, setPubKey] = useState(null);
-    const [derivedPubKey, setDerivedPubKey] = useState(null);
+export function WalletProvider({ children }: { children: React.ReactNode }) {
+    const [wallet, setWallet] = useState<WalletClient | null>(null);
+    const [pubKey, setPubKey] = useState<string | null>(null);
+    const [derivedPubKey, setDerivedPubKey] = useState<string | null>(null);
+
     // KeyID is static per session
-    const keyIDRef = useRef(null);
+    const keyIDRef = useRef<string | null>(null);
     if (!keyIDRef.current) {
         const existing = localStorage.getItem('keyID');
-        if (existing) keyIDRef.current = existing;
-        else {
+        if (existing) {
+            keyIDRef.current = existing;
+        } else {
             const newKey = Utils.toHex(Random(8));
             localStorage.setItem('keyID', newKey);
             keyIDRef.current = newKey;
         }
     }
-    const keyID = keyIDRef.current;
+    const keyID = keyIDRef.current as string;
     const localKVStore = new LocalKVStore();
     console.log("keyID", keyID);
 
@@ -51,10 +60,9 @@ export function WalletProvider({ children }) {
                 keyID,
             });
 
-            // Only update state once everything is fetched
             setWallet(newWallet);
-            setPubKey(identityKey);
-            setDerivedPubKey(derivedKey);
+            setPubKey(identityKey.publicKey);
+            setDerivedPubKey(derivedKey.publicKey);
             toast.success('Wallet connected successfully', {
                 duration: 5000,
                 position: 'top-center',
@@ -68,7 +76,7 @@ export function WalletProvider({ children }) {
                 id: 'wallet-connect-error',
             });
         }
-    }, []);
+    }, [keyID]);
 
     return (
         <WalletContext.Provider
@@ -79,7 +87,7 @@ export function WalletProvider({ children }) {
                 keyID,
                 localKVStore,
                 checkWalletConnection,
-                initializeWallet
+                initializeWallet,
             }}
         >
             {children}

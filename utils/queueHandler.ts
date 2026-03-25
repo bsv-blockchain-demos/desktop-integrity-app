@@ -1,11 +1,11 @@
-class ActionQueue {
-    constructor() {
-        this.queue = [];
-        this.running = false;
-    }
+type Task = () => Promise<void>;
 
-    enqueue(fn) {
-        return new Promise((resolve, reject) => {
+class ActionQueue {
+    private queue: Task[] = [];
+    private running = false;
+
+    enqueue<T>(fn: () => Promise<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
             this.queue.push(async () => {
                 try {
                     const result = await fn();
@@ -18,17 +18,16 @@ class ActionQueue {
         });
     }
 
-    async runNext() {
+    private async runNext(): Promise<void> {
         if (this.running || this.queue.length === 0) return;
         this.running = true;
-        const task = this.queue.shift();
+        const task = this.queue.shift()!;
         await task();
         this.running = false;
         this.runNext();
     }
 }
 
-// Create one shared global queue
 const globalQueue = new ActionQueue();
 
 export default globalQueue;

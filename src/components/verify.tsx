@@ -118,7 +118,7 @@ function Verify() {
                 {files.length === 0 ? (
                     <>
                         <h1 className="block-header">Verify Files</h1>
-                        <button className="action-button" onClick={handleSelectFiles}>Select Files/Folders</button>
+                        <button className="action-button" onClick={handleSelectFiles}>Select a File</button>
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}

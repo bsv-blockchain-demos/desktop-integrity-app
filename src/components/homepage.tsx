@@ -83,8 +83,8 @@ function Homepage() {
       <div className="content-block file-picker-block">
         {files.length === 0 ? (
           <>
-            <h1 className="block-header">File/Folder Picker</h1>
-            <button className="action-button" onClick={handleSelectFiles}>Select Files/Folders</button>
+            <h1 className="block-header">File Picker</h1>
+            <button className="action-button" onClick={handleSelectFiles}>Select a File</button>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -96,7 +96,7 @@ function Homepage() {
           </>
         ) : (
           <>
-            <h1 className="block-header">File/Folder Picker</h1>
+            <h1 className="block-header">File Picker</h1>
             {fileContent && (
               <div className="file-preview custom-scrollbar">
                 <h3>Preview:</h3>

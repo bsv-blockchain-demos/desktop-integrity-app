@@ -8,6 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 console.log("__dirname", __dirname);
 
+const isDev = !app.isPackaged;
+
 let win;
 
 function createWindow() {
@@ -26,7 +28,11 @@ function createWindow() {
     },
   });
 
-  win.loadURL('http://localhost:5173'); // Load the Vite React app
+  if (isDev) {
+    win.loadURL('http://localhost:5173'); // Load the Vite dev server
+  } else {
+    win.loadFile(path.join(__dirname, '../dist/index.html')); // Load the built app
+  }
 
   // Intercept close to allow renderer cleanup
   win.on('close', (e) => {

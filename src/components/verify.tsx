@@ -28,6 +28,7 @@ function FilePreview({ fileContent }: { fileContent: FileContent }) {
 function Verify() {
     const { files, fileContent, setFilePath, setFiles, handleCancel } = useFile();
     const [response, setResponse] = useState<OverlayResponse | null>(null);
+    const [isDragOver, setIsDragOver] = useState(false);
 
     useEffect(() => {
         setFiles([]);
@@ -62,7 +63,7 @@ function Verify() {
     const handleDrop = useCallback(async (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-
+        setIsDragOver(false);
         const droppedFile = e.dataTransfer.files[0] as File & { path: string };
         console.log("droppedFile", droppedFile);
         if (droppedFile && droppedFile.path) {
@@ -74,6 +75,12 @@ function Verify() {
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
     };
 
     if (response) {
@@ -115,7 +122,8 @@ function Verify() {
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
-                            className="file-drop-area"
+                            onDragLeave={handleDragLeave}
+                            className={`file-drop-area${isDragOver ? ' drag-over' : ''}`}
                         >
                             <h2>Drag and Drop a File Here</h2>
                         </div>

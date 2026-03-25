@@ -25,6 +25,7 @@ function FilePreview({ fileContent }: { fileContent: FileContent }) {
 
 function Homepage() {
   const { files, setFiles, fileContent, setFilePath, handleCancel, savedFiles, handleSaveToBlockchain } = useFile();
+  const [isDragOver, setIsDragOver] = React.useState(false);
 
   const handleSelectFiles = async () => {
     if (window.electronAPI?.openDialog) {
@@ -47,7 +48,7 @@ function Homepage() {
   const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
+    setIsDragOver(false);
     const droppedFile = e.dataTransfer.files[0] as File & { path: string };
     console.log("droppedFile", droppedFile);
     if (droppedFile && droppedFile.path) {
@@ -59,6 +60,12 @@ function Homepage() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
   };
 
   const handleSaveClick = () => {
@@ -81,7 +88,8 @@ function Homepage() {
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="file-drop-area"
+              onDragLeave={handleDragLeave}
+              className={`file-drop-area${isDragOver ? ' drag-over' : ''}`}
             >
               <h2>Drag and Drop a File Here</h2>
             </div>

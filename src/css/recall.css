@@ -3,6 +3,104 @@
   width: 100%;
 }
 
+/* Tab bar */
+.recall-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+  margin-bottom: 1.5rem;
+}
+
+.recall-tab {
+  background: none;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.recall-tab:hover {
+  color: #ccc;
+}
+
+.recall-tab.active {
+  color: #e0e0e0;
+  border-bottom-color: #6366f1;
+}
+
+.recall-tab-content {
+  animation: fadeIn 0.2s ease-out;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Let the log table fill remaining card height instead of using a fixed max-height */
+.recall-container .recall-tab-content .status-table-container {
+  flex: 1;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.recall-tab-description {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Empty state */
+.recall-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #888;
+}
+
+.empty-state-text {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-hint {
+  font-size: 0.875rem;
+}
+
+.empty-state-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.empty-state-link:hover {
+  text-decoration: underline;
+}
+
+/* Recall spinner */
+.recall-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .recall-section {
   margin-bottom: 2rem;
 }

@@ -45,7 +45,6 @@
 
 .content-block:hover {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  transform: translateY(-2px);
 }
 
 .file-picker-block {
@@ -136,6 +135,13 @@
   background: rgba(76, 79, 150, 0.08);
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(76, 79, 150, 0.15);
+}
+
+.file-drop-area.drag-over {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.12);
+  transform: scale(1.03);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
 }
 
 .file-drop-area::before {
@@ -555,32 +561,55 @@
 }
 
 .verified {
-  background-color: #10b981;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
   text-align: center;
-  margin: 1rem auto;
-  display: inline-block;
-  width: fit-content;
+  margin: 1.5rem auto;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
 }
 
+.verified::before {
+  content: '✓';
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
 
 .not-verified {
-  background-color: #ef4444;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.08) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
   text-align: center;
-  margin: 1rem auto;
-  display: inline-block;
-  width: fit-content;
+  margin: 1.5rem auto;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.1);
+}
+
+.not-verified::before {
+  content: '✗';
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 /* Fade-in animation */

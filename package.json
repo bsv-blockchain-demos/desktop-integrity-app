@@ -11,6 +11,7 @@
     "build:mac": "npm run build:electron && vite build && electron-builder --mac",
     "build:linux": "npm run build:electron && vite build && electron-builder --linux",
     "build:all": "npm run build:electron && vite build && electron-builder -mwl",
+    "start": "npm run build:electron && vite build && electron-builder --dir --config.win.signAndEditExecutable=false && node scripts/start.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "electron": "npm run build:electron && npx electron dist-electron/electron/main.js"
@@ -18,7 +19,6 @@
   "main": "dist-electron/electron/main.js",
   "dependencies": {
     "@bsv/sdk": "^1.6.11",
-    "dotenv": "^17.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",

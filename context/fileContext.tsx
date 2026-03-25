@@ -85,6 +85,7 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
             setSavedFiles(updated);
 
             if (!wallet) throw new Error("Wallet not connected");
+            if (!localKVStore) throw new Error("Wallet not fully initialized");
             if (!fileContent) throw new Error("No file content");
 
             const encryptedFileContent = await wallet.encrypt({

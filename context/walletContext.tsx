@@ -8,7 +8,7 @@ interface WalletContextType {
     pubKey: string | null;
     derivedPubKey: string | null;
     keyID: string;
-    localKVStore: LocalKVStore;
+    localKVStore: LocalKVStore | null;
     checkWalletConnection: (wallet: WalletClient) => Promise<boolean>;
     initializeWallet: () => Promise<void>;
 }
@@ -23,6 +23,7 @@ export const useWallet = () => useContext(WalletContext);
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [wallet, setWallet] = useState<WalletClient | null>(null);
+    const [localKVStore, setLocalKVStore] = useState<LocalKVStore | null>(null);
     const [pubKey, setPubKey] = useState<string | null>(null);
     const [derivedPubKey, setDerivedPubKey] = useState<string | null>(null);
 
@@ -39,7 +40,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }
     const keyID = keyIDRef.current as string;
-    const localKVStore = new LocalKVStore();
     console.log("keyID", keyID);
 
     useClearLocalStorageOnQuit();
@@ -61,6 +61,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             });
 
             setWallet(newWallet);
+            setLocalKVStore(new LocalKVStore(newWallet));
             setPubKey(identityKey.publicKey);
             setDerivedPubKey(derivedKey.publicKey);
             toast.success('Wallet connected successfully', {

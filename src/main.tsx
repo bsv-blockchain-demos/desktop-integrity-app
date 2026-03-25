@@ -4,18 +4,18 @@ import './css/index.css';
 import App from './App';
 import { WalletProvider } from '../context/walletContext';
 import { FileProvider } from '../context/fileContext';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import ToasterWrapper from './components/toast';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <WalletProvider>
         <FileProvider>
           <ToasterWrapper />
           <App />
         </FileProvider>
       </WalletProvider>
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>,
 );

@@ -66,6 +66,7 @@ function Recall() {
                 return;
             }
             if (!keyID) {
+                if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
                 const localKeyID = await localKVStore.get(txID);
                 if (!localKeyID) {
                     toast.error("KeyID not found");
@@ -121,6 +122,7 @@ function Recall() {
 
             const transaction = Transaction.fromBEEF((response.outputs[0] as { beef: number[] }).beef);
             const metadata = (transaction.metadata as Map<string, number[]>).get('OffChainValues');
+            if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
             const keyID = await localKVStore.get(txidInput);
 
             if (!wallet) {

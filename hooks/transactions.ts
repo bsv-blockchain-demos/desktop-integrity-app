@@ -3,6 +3,8 @@ import { FileHash } from './FileHash';
 
 interface OverlayOutput {
     beef: number[];
+    outputIndex: number;
+    context?: number[];
     [key: string]: unknown;
 }
 

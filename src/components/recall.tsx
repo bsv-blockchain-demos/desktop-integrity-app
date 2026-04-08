@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../../context/walletContext';
 import { getTransactionByTxID } from '../../hooks/transactions';
-import { Transaction } from '@bsv/sdk';
 import toast from 'react-hot-toast';
 import '../css/layout.css';
 import '../css/recall.css';
@@ -81,8 +80,7 @@ function Recall() {
                 return;
             }
 
-            const transaction = Transaction.fromBEEF((response.outputs[0] as { beef: number[] }).beef);
-            const metadata = (transaction.metadata as Map<string, number[]>).get('OffChainValues');
+            const metadata = response.outputs[0].context;
 
             if (!wallet) {
                 toast.error("Wallet not connected");
@@ -120,8 +118,7 @@ function Recall() {
                 return;
             }
 
-            const transaction = Transaction.fromBEEF((response.outputs[0] as { beef: number[] }).beef);
-            const metadata = (transaction.metadata as Map<string, number[]>).get('OffChainValues');
+            const metadata = response.outputs[0].context;
             if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
             const keyID = await localKVStore.get(txidInput);
 

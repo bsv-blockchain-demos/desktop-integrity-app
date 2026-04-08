@@ -55,11 +55,15 @@ ipcMain.handle('dialog:open', async (): Promise<string> => {
   return result.filePaths[0];
 });
 
+function getLogsDir(): string {
+  const logsDir = path.join(app.getPath('userData'), 'logs');
+  if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+  return logsDir;
+}
+
 ipcMain.handle('log:write', async (_event, fileName: string, logData: string) => {
   try {
-    const logsDir = path.resolve(process.cwd(), 'LOGS');
-    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
-
+    const logsDir = getLogsDir();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const safeName = fileName.replace(/[<>:"/\\|?*]/g, '');
     const logFileName = `${safeName}-${timestamp}.txt`;
@@ -74,7 +78,7 @@ ipcMain.handle('log:write', async (_event, fileName: string, logData: string) =>
 });
 
 ipcMain.handle('logs:list', async (): Promise<string[]> => {
-  const logsDir = path.resolve(process.cwd(), 'LOGS');
+  const logsDir = getLogsDir();
   try {
     const files = fs.readdirSync(logsDir);
     return files.map(filename => path.join(logsDir, filename));

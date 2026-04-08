@@ -28,6 +28,7 @@ function FilePreview({ fileContent }: { fileContent: FileContent }) {
 function Verify() {
     const { files, fileContent, setFilePath, setFiles, handleCancel } = useFile();
     const [response, setResponse] = useState<OverlayResponse | null>(null);
+    const [verifyError, setVerifyError] = useState<string | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
 
     useEffect(() => {
@@ -37,14 +38,15 @@ function Verify() {
 
     const handleVerify = async () => {
         if (!fileContent) return;
-
-        // Hash the raw bytes — consistent across all file types
-        const fileHash = Hash.sha256(fileContent.bytes);
-        console.log("fileHash", fileHash);
-
-        const result = await getTransactionByFileHash(fileHash);
-        console.log("response", result);
-        setResponse(result);
+        setVerifyError(null);
+        try {
+            const fileHash = Hash.sha256(fileContent.bytes);
+            const result = await getTransactionByFileHash(fileHash);
+            setResponse(result);
+        } catch (err) {
+            setVerifyError('Could not reach the overlay network. Check your connection and try again.');
+            console.error("Verify query failed:", err);
+        }
     };
 
     const handleSelectFiles = async () => {
@@ -82,6 +84,21 @@ function Verify() {
         e.preventDefault();
         setIsDragOver(false);
     };
+
+    if (verifyError) {
+        return (
+            <div className="main-container">
+                <div className="content-block file-picker-block">
+                    <h1 className="block-header">File Integrity</h1>
+                    <p className="not-verified">Overlay query failed</p>
+                    <p style={{ color: '#888', fontSize: '0.85rem', textAlign: 'center', marginTop: '0.5rem' }}>{verifyError}</p>
+                    <div className="button-container">
+                        <button className="action-button cancel" onClick={() => { setVerifyError(null); }}>Try Again</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (response) {
         return (

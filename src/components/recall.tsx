@@ -40,7 +40,7 @@ function Recall() {
                 let displayTimestamp = 'Unknown';
                 if (timestampMatch) {
                     const iso = timestampMatch[1].replace(/(\d{2})-(\d{2})-(\d{2})$/, (_, h, m, s) => `${h}:${m}:${s}`);
-                    timestamp = new Date(iso);
+                    timestamp = new Date(iso + 'Z');
                     displayTimestamp = timestamp.toLocaleString();
                 }
                 const originalName = fileName.replace(/-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.txt$/, '');
@@ -175,6 +175,10 @@ function Recall() {
                     <pre>{new TextDecoder().decode(buffer)}</pre>
                 </div>
             );
+        }
+        const officeExts = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+        if (officeExts.includes(ext)) {
+            return <p style={{ marginTop: '1rem' }}>Preview not available for Office files. Download the file to open it.</p>;
         }
         return <p style={{ marginTop: '1rem' }}>Preview not available for this file type.</p>;
     }

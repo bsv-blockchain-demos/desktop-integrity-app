@@ -56,7 +56,9 @@ ipcMain.handle('dialog:open', async (): Promise<string> => {
 });
 
 function getLogsDir(): string {
-  const logsDir = path.join(app.getPath('userData'), 'logs');
+  const logsDir = isDev
+    ? path.join(process.cwd(), 'LOGS')
+    : path.join(app.getPath('userData'), 'logs');
   if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
   return logsDir;
 }
@@ -169,9 +171,15 @@ ipcMain.handle('save-decrypted-file', async (_event, content: Uint8Array, fileNa
     defaultPath: `recalled_${fileName}`,
   });
 
-  if (result.canceled || !result.filePath) return;
+  if (result.canceled || !result.filePath) return { success: false };
 
-  fs.writeFileSync(result.filePath, Buffer.from(content));
+  try {
+    fs.writeFileSync(result.filePath, Buffer.from(content));
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to save file:', err);
+    return { success: false, error: (err as Error).message };
+  }
 });
 
 app.whenReady().then(() => {

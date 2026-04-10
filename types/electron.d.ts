@@ -14,7 +14,7 @@ interface ElectronAPI {
   writeLog: (fileName: string, data: string) => Promise<WriteLogResult>;
   listLogs: () => Promise<string[]>;
   getFileStats: (filePath: string) => Promise<FileStats | null>;
-  saveDecryptedFile: (content: Uint8Array, fileName: string) => Promise<void>;
+  saveDecryptedFile: (content: Uint8Array, fileName: string) => Promise<{ success: boolean; error?: string } | undefined>;
   minimize: () => void;
   toggleMaximize: () => void;
   close: () => void;

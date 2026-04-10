@@ -144,7 +144,10 @@ function Recall() {
 
     async function downloadFile(content: number[], fileName: string | null) {
         const buffer = new Uint8Array(content);
-        await window.electronAPI.saveDecryptedFile(buffer, fileName ?? 'recalled_file');
+        const result = await window.electronAPI.saveDecryptedFile(buffer, fileName ?? 'recalled_file');
+        if (result && !result.success && result.error) {
+            toast.error('Failed to save file: ' + result.error);
+        }
     }
 
     function getPreview(dc: DecryptedFile) {

@@ -36,6 +36,10 @@
     color: var(--text-primary);
 }
 
+.help-section-body {
+    text-align: left;
+}
+
 .help-section-body p {
     margin: 0 0 0.85rem 0;
     color: var(--text-secondary);

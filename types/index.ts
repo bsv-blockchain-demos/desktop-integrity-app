@@ -18,8 +18,7 @@ export interface FileStats {
 
 export interface FileStatus {
   txID: string;
-  uhrpURL: string;
-  satoshis: string;
+  uhrpURL?: string;
   time: string;
 }
 
@@ -41,7 +40,6 @@ export interface LogData {
   Time?: string;
   TxID?: string;
   uhrpURL?: string;
-  Satoshis?: string;
   SavedWithKeyID?: string;
   FileCreatedTS?: string;
   FileModifiedTS?: string;

@@ -7,6 +7,7 @@ import Sidebar from './components/sidebar';
 import TopBar from './components/topbar';
 import Verify from './components/verify';
 import Recall from './components/recall';
+import Help from './components/help';
 import { useWallet } from '../context/walletContext';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/logs" element={<Logs />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/recall" element={<Recall />} />
+          <Route path="/help" element={<Help />} />
         </Routes>
       </main>
     </div>

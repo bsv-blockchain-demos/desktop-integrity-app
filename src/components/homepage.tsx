@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useFile } from '../../context/fileContext';
 import Status from './status';
 import '../css/layout.css';
@@ -24,7 +25,7 @@ function FilePreview({ fileContent }: { fileContent: FileContent }) {
 }
 
 function Homepage() {
-  const { files, setFiles, fileContent, setFilePath, handleCancel, savedFiles, handleSaveToBlockchain } = useFile();
+  const { files, setFiles, fileContent, setFilePath, handleCancel, savedFiles, handleSaveToBlockchain, uhrpEnabled, setUhrpEnabled } = useFile();
   const [isDragOver, setIsDragOver] = React.useState(false);
 
   const handleSelectFiles = async () => {
@@ -81,9 +82,23 @@ function Homepage() {
   return (
     <div className="main-container">
       <div className="content-block file-picker-block">
+        <h1 className="block-header">File Picker</h1>
+
+        <div className="uhrp-toggle-row">
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={uhrpEnabled}
+              onChange={e => setUhrpEnabled(e.target.checked)}
+            />
+            <span className="toggle-slider" />
+          </label>
+          <span className="toggle-label">Enable Recall (UHRP)</span>
+          <Link to="/help" className="help-link">What is this?</Link>
+        </div>
+
         {files.length === 0 ? (
           <>
-            <h1 className="block-header">File Picker</h1>
             <button className="action-button" onClick={handleSelectFiles}>Select a File</button>
             <div
               onDrop={handleDrop}
@@ -96,7 +111,6 @@ function Homepage() {
           </>
         ) : (
           <>
-            <h1 className="block-header">File Picker</h1>
             {fileContent && (
               <div className="file-preview custom-scrollbar">
                 <h3>Preview:</h3>

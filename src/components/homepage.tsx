@@ -94,7 +94,7 @@ function Homepage() {
             <span className="toggle-slider" />
           </label>
           <span className="toggle-label">Enable Recall (UHRP)</span>
-          <Link to="/help" className="help-link">What is this?</Link>
+          <Link to="/help#recall" className="help-link">What is this?</Link>
         </div>
 
         {files.length === 0 ? (

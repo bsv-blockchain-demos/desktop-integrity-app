@@ -185,16 +185,3 @@
     flex: 1;
 }
 
-.help-link {
-    font-size: 0.78rem;
-    color: #818cf8;
-    text-decoration: none;
-    white-space: nowrap;
-    opacity: 0.85;
-    transition: opacity 0.15s ease;
-}
-
-.help-link:hover {
-    opacity: 1;
-    text-decoration: underline;
-}

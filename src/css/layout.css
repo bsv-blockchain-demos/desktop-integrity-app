@@ -642,6 +642,38 @@
   animation: pulse 2s infinite;
 }
 
+/* Header row with inline help link */
+.block-header-row {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.block-header-row .block-header {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.block-header-row .help-link {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Shared help link */
+.help-link {
+    font-size: 0.78rem;
+    color: #818cf8;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+}
+
+.help-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
 /* Responsive layout */
 @media (max-width: 768px) {
   .main-container {

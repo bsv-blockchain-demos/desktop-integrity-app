@@ -343,7 +343,10 @@ function Recall() {
     return (
         <div className="main-container">
             <div className="content-block recall-container custom-scrollbar">
-                <h1 className="block-header">Recall Files</h1>
+                <div className="block-header-row">
+                    <h1 className="block-header">Recall Files</h1>
+                    <Link to="/help#recall" className="help-link">What is this?</Link>
+                </div>
 
                 <div className="recall-tabs">
                     <button

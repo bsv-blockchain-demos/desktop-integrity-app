@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../css/layout.css';
 import '../css/help.css';
 
 interface SectionProps {
+    id: string;
     icon: string;
     title: string;
     children: React.ReactNode;
 }
 
-function Section({ icon, title, children }: SectionProps) {
+function Section({ id, icon, title, children }: SectionProps) {
     return (
-        <div className="help-section">
+        <div id={id} className="help-section">
             <div className="help-section-header">
                 <span className="help-section-icon">{icon}</span>
                 <h2 className="help-section-title">{title}</h2>
@@ -23,12 +25,20 @@ function Section({ icon, title, children }: SectionProps) {
 }
 
 function Help() {
+    const { hash } = useLocation();
+
+    useEffect(() => {
+        if (!hash) return;
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, [hash]);
+
     return (
         <div className="main-container">
             <div className="content-block help-block custom-scrollbar">
                 <h1 className="block-header">How This App Works</h1>
 
-                <Section icon="🔍" title="What does this app do?">
+                <Section id="what" icon="🔍" title="What does this app do?">
                     <p>
                         This app lets you <strong>prove that a file hasn't been changed</strong> since you saved it —
                         using the Bitcoin SV blockchain as a permanent, tamper-proof record.
@@ -40,7 +50,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="⛓️" title="What is a blockchain? (beginner-friendly)">
+                <Section id="blockchain" icon="⛓️" title="What is a blockchain? (beginner-friendly)">
                     <p>
                         A blockchain is a <strong>public ledger</strong> — a chain of records that, once written, cannot
                         be changed or deleted. Thousands of computers around the world hold a copy of the same ledger,
@@ -58,7 +68,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="💾" title="Save Files">
+                <Section id="save" icon="💾" title="Save Files">
                     <p>When you select a file and click <strong>"Save to blockchain"</strong>:</p>
                     <ol className="help-list">
                         <li>The app computes a <strong>SHA-256 hash</strong> of your file — its unique fingerprint</li>
@@ -74,7 +84,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="✅" title="Verify Files">
+                <Section id="verify" icon="✅" title="Verify Files">
                     <p>
                         Drop or select the same file on the <strong>Verify</strong> page. The app re-computes the
                         file's hash and asks the overlay network: <em>"Has this fingerprint ever been registered?"</em>
@@ -89,7 +99,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="🔄" title="Recall Files (UHRP)">
+                <Section id="recall" icon="🔄" title="Recall Files (UHRP)">
                     <p>
                         If the <strong>Recall toggle</strong> is on, the app does two extra steps when saving:
                     </p>
@@ -115,7 +125,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="⚙️" title="The Recall Toggle">
+                <Section id="toggle" icon="⚙️" title="The Recall Toggle">
                     <div className="help-toggle-explainer">
                         <div className="help-toggle-option">
                             <span className="help-badge off">Off</span>
@@ -138,7 +148,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="📋" title="Logs">
+                <Section id="logs" icon="📋" title="Logs">
                     <p>
                         Every time you save a file, a <strong>log entry</strong> is created locally on your computer.
                         It records:
@@ -156,7 +166,7 @@ function Help() {
                     </p>
                 </Section>
 
-                <Section icon="🔑" title="Your Wallet">
+                <Section id="wallet" icon="🔑" title="Your Wallet">
                     <p>
                         This app uses a <strong>BSV wallet</strong> to sign and pay for blockchain transactions.
                         The wallet also provides the encryption keys used to protect your files for Recall.

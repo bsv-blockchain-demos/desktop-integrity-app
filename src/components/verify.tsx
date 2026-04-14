@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useFile } from '../../context/fileContext';
 import { Hash } from '@bsv/sdk';
 import { getTransactionByFileHash } from '../../hooks/transactions';
@@ -85,11 +86,18 @@ function Verify() {
         setIsDragOver(false);
     };
 
+    const header = (
+        <div className="block-header-row">
+            <h1 className="block-header">Verify Files</h1>
+            <Link to="/help#verify" className="help-link">What is this?</Link>
+        </div>
+    );
+
     if (verifyError) {
         return (
             <div className="main-container">
                 <div className="content-block file-picker-block">
-                    <h1 className="block-header">File Integrity</h1>
+                    {header}
                     <p className="not-verified">Overlay query failed</p>
                     <p style={{ color: '#888', fontSize: '0.85rem', textAlign: 'center', marginTop: '0.5rem' }}>{verifyError}</p>
                     <div className="button-container">
@@ -104,7 +112,7 @@ function Verify() {
         return (
             <div className="main-container">
                 <div className="content-block file-picker-block">
-                    <h1 className="block-header">File Integrity</h1>
+                    {header}
                     {fileContent && (
                         <div className="file-preview custom-scrollbar">
                             <h3>Preview:</h3>
@@ -132,9 +140,9 @@ function Verify() {
     return (
         <div className="main-container">
             <div className="content-block file-picker-block">
+                {header}
                 {files.length === 0 ? (
                     <>
-                        <h1 className="block-header">Verify Files</h1>
                         <button className="action-button" onClick={handleSelectFiles}>Select a File</button>
                         <div
                             onDrop={handleDrop}
@@ -147,7 +155,6 @@ function Verify() {
                     </>
                 ) : (
                     <>
-                        <h1 className="block-header">Verify Files</h1>
                         {fileContent && (
                             <div className="file-preview custom-scrollbar">
                                 <h3>Preview:</h3>

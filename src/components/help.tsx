@@ -41,12 +41,17 @@ function Help() {
                 <Section id="what" icon="🔍" title="What does this app do?">
                     <p>
                         This app lets you <strong>prove that a file hasn't been changed</strong> since you saved it —
-                        using the Bitcoin SV blockchain as a permanent, tamper-proof record.
+                        using the BSV blockchain as a permanent, tamper-proof record.
                     </p>
                     <p>
                         Think of it like a notary stamp. Once a document is notarised, there's a permanent record of
                         what it said at that moment. This app does the same thing digitally, except the record is on a
                         public blockchain that anyone can verify — and nobody can alter.
+                    </p>
+                    <p className="help-note">
+                        <strong>Important:</strong> only a cryptographic fingerprint (hash) of your file is ever
+                        recorded on-chain. The file itself never leaves your computer and is never uploaded to the
+                        blockchain.
                     </p>
                 </Section>
 
@@ -57,7 +62,7 @@ function Help() {
                         so there's no single person or company that controls it.
                     </p>
                     <p>
-                        This app uses <strong>Bitcoin SV (BSV)</strong>, a high-capacity public blockchain designed for
+                        This app uses <strong>BSV</strong>, a high-capacity public blockchain designed for
                         data applications. When you "save" a file here, the app does <em>not</em> upload the file itself.
                         Instead it takes a <strong>fingerprint</strong> of the file (called a hash) and permanently
                         records that fingerprint in a BSV transaction.
@@ -71,17 +76,14 @@ function Help() {
                 <Section id="save" icon="💾" title="Save Files">
                     <p>When you select a file and click <strong>"Save to blockchain"</strong>:</p>
                     <ol className="help-list">
-                        <li>The app computes a <strong>SHA-256 hash</strong> of your file — its unique fingerprint</li>
+                        <li>The app computes a <strong>SHA-256 hash</strong> of your file — a short, unique fingerprint.
+                            <strong> Only this hash is sent to the blockchain, never the file itself.</strong></li>
                         <li>That hash is embedded in a BSV transaction and broadcast to the network</li>
                         <li>The transaction is picked up by <strong>overlay nodes</strong> — specialised servers that
                             index and store these hashes so they can be queried quickly</li>
                         <li>A <strong>local log file</strong> is saved with the transaction ID, timestamps, and other details</li>
                         <li>If <strong>Recall is enabled</strong>, the file is also encrypted and stored on UHRP (see below)</li>
                     </ol>
-                    <p className="help-note">
-                        The file content itself never goes on-chain. Only the fingerprint does. This keeps the
-                        transaction small and your file private.
-                    </p>
                 </Section>
 
                 <Section id="verify" icon="✅" title="Verify Files">

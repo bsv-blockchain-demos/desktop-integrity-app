@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../../context/walletContext';
-import { getTransactionByTxID } from '../../hooks/transactions';
+import { downloadFromUHRP } from '../../utils/UHRPManager';
 import toast from 'react-hot-toast';
 import '../css/layout.css';
 import '../css/recall.css';
@@ -22,12 +22,12 @@ interface ParsedLog {
 
 function Recall() {
     const { localKVStore, wallet } = useWallet();
-    const [txid, setTxid] = useState('');
+    const [uhrpInput, setUhrpInput] = useState('');
     const [decryptedContent, setDecryptedContent] = useState<DecryptedFile | null>(null);
     const [parsedLogs, setParsedLogs] = useState<ParsedLog[]>([]);
     const [selectedLog, setSelectedLog] = useState<string | null>(null);
     const [logPreviewData, setLogPreviewData] = useState<LogData | null>(null);
-    const [activeTab, setActiveTab] = useState<'logs' | 'txid'>('logs');
+    const [activeTab, setActiveTab] = useState<'logs' | 'uhrp'>('logs');
     const [isRecalling, setIsRecalling] = useState(false);
 
     useEffect(() => {
@@ -57,16 +57,16 @@ function Recall() {
         try {
             const rawContent = await window.electronAPI.readFile(selectedLog);
             const objectContent = parseLogContent(rawContent.content);
-            const txID = objectContent.TxID;
+            const uhrpURL = objectContent.uhrpURL;
             let keyID = objectContent.SavedWithKeyID;
 
-            if (!txID) {
-                toast.error("TxID not found in log");
+            if (!uhrpURL) {
+                toast.error("UHRP URL not found in log");
                 return;
             }
             if (!keyID) {
                 if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
-                const localKeyID = await localKVStore.get(txID);
+                const localKeyID = await localKVStore.get(uhrpURL);
                 if (!localKeyID) {
                     toast.error("KeyID not found");
                     return;
@@ -74,13 +74,7 @@ function Recall() {
                 keyID = localKeyID as string;
             }
 
-            const response = await getTransactionByTxID(txID);
-            if (response.outputs.length === 0) {
-                toast.error("No transaction found");
-                return;
-            }
-
-            const metadata = response.outputs[0].context;
+            const encryptedBytes = await downloadFromUHRP(uhrpURL);
 
             if (!wallet) {
                 toast.error("Wallet not connected");
@@ -90,37 +84,35 @@ function Recall() {
             const { plaintext } = await wallet.decrypt({
                 protocolID: [0, 'fileintegrity'],
                 keyID,
-                ciphertext: metadata ?? [],
+                ciphertext: encryptedBytes,
             });
 
             setDecryptedContent({
                 data: plaintext,
                 filename: objectContent.SavedFile ?? null,
-                sourceTxid: txID,
+                sourceTxid: objectContent.TxID ?? uhrpURL,
             });
             setSelectedLog(null);
         } catch (error) {
-            console.error("Error getting transaction from log:", error);
-            toast.error("Error getting transaction from log");
+            console.error("Error recalling file from log:", error);
+            toast.error("Error recalling file from log");
         } finally {
             setIsRecalling(false);
         }
     }
 
-    async function tryRecallFromTxID(txidInput: string) {
-        if (!txidInput) { toast.error("No txid provided"); return; }
-        if (txidInput.length !== 64) { toast.error("Invalid txid"); return; }
+    async function tryRecallFromUHRP(uhrpURLInput: string) {
+        if (!uhrpURLInput) { toast.error("No UHRP URL provided"); return; }
         setIsRecalling(true);
         try {
-            const response = await getTransactionByTxID(txidInput);
-            if (response.outputs.length === 0) {
-                toast.error("No transaction found");
+            if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
+            const keyID = await localKVStore.get(uhrpURLInput);
+            if (!keyID) {
+                toast.error("KeyID not found for this UHRP URL");
                 return;
             }
 
-            const metadata = response.outputs[0].context;
-            if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
-            const keyID = await localKVStore.get(txidInput);
+            const encryptedBytes = await downloadFromUHRP(uhrpURLInput);
 
             if (!wallet) {
                 toast.error("Wallet not connected");
@@ -130,13 +122,13 @@ function Recall() {
             const { plaintext } = await wallet.decrypt({
                 protocolID: [0, 'fileintegrity'],
                 keyID: keyID as string,
-                ciphertext: metadata ?? [],
+                ciphertext: encryptedBytes,
             });
 
-            setDecryptedContent({ data: plaintext, filename: "file", sourceTxid: txidInput });
+            setDecryptedContent({ data: plaintext, filename: "file", sourceTxid: uhrpURLInput });
         } catch (error) {
-            console.error("Error getting transaction by txid:", error);
-            toast.error("Error getting transaction by txid");
+            console.error("Error recalling file by UHRP URL:", error);
+            toast.error("Error recalling file by UHRP URL");
         } finally {
             setIsRecalling(false);
         }
@@ -311,6 +303,17 @@ function Recall() {
                                         </div>
                                     </div>
                                     <div className="metadata-row">
+                                        <span className="metadata-label">UHRP URL:</span>
+                                        <div className="metadata-value-container">
+                                            <span className="metadata-value monospace-value">
+                                                {logPreviewData?.uhrpURL ? `${logPreviewData.uhrpURL.substring(0, 20)}...` : 'Unknown'}
+                                            </span>
+                                            {logPreviewData?.uhrpURL && (
+                                                <button className="copy-btn" onClick={() => copyToClipboard(logPreviewData.uhrpURL!, 'UHRP URL')} title="Copy UHRP URL">📋</button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="metadata-row">
                                         <span className="metadata-label">Key ID:</span>
                                         <div className="metadata-value-container">
                                             <span className="metadata-value monospace-value">
@@ -350,10 +353,10 @@ function Recall() {
                         From Logs
                     </button>
                     <button
-                        className={`recall-tab${activeTab === 'txid' ? ' active' : ''}`}
-                        onClick={() => setActiveTab('txid')}
+                        className={`recall-tab${activeTab === 'uhrp' ? ' active' : ''}`}
+                        onClick={() => setActiveTab('uhrp')}
                     >
-                        From Transaction ID
+                        From UHRP URL
                     </button>
                 </div>
 
@@ -392,15 +395,15 @@ function Recall() {
                     </div>
                 )}
 
-                {activeTab === 'txid' && (
+                {activeTab === 'uhrp' && (
                     <div className="recall-tab-content">
-                        <p className="recall-tab-description">Enter a transaction ID to recall a file directly from the blockchain.</p>
-                        <form className="recall-form" onSubmit={(e) => { e.preventDefault(); tryRecallFromTxID(txid); }}>
+                        <p className="recall-tab-description">Enter a UHRP URL to recall a file directly from storage.</p>
+                        <form className="recall-form" onSubmit={(e) => { e.preventDefault(); tryRecallFromUHRP(uhrpInput); }}>
                             <input
                                 className="recall-input"
                                 type="text"
-                                placeholder="Enter transaction ID (64 hex characters)"
-                                onChange={(e) => setTxid(e.target.value)}
+                                placeholder="Enter UHRP URL"
+                                onChange={(e) => setUhrpInput(e.target.value)}
                             />
                             <button className="recall-button" type="submit" disabled={isRecalling}>
                                 {isRecalling ? <span className="recall-spinner" /> : 'Recall'}

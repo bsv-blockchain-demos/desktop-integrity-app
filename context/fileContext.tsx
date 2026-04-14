@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createTransaction } from '../hooks/transactions';
+import { uploadToUHRP } from '../utils/UHRPManager';
 import { useWallet } from './walletContext';
 import { toast } from 'react-hot-toast';
 import type { FileContent, SavedFile } from '../types/index';
@@ -79,7 +80,7 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
             }
             const updated: SavedFile[] = [
                 ...existing,
-                { fileName, status: { txID: 'Creating...', satoshis: 'Calculating...', time } }
+                { fileName, status: { txID: 'Creating...', uhrpURL: 'Uploading...', satoshis: 'Calculating...', time } }
             ];
             localStorage.setItem('savedFiles', JSON.stringify(updated));
             setSavedFiles(updated);
@@ -94,7 +95,10 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
                 protocolID: [0, 'fileintegrity'],
             });
 
-            const response = await createTransaction(fileContent.bytes, wallet, encryptedFileContent.ciphertext, fileName);
+            const [response, uhrpURL] = await Promise.all([
+                createTransaction(fileContent.bytes, wallet, fileName),
+                uploadToUHRP(encryptedFileContent.ciphertext, wallet),
+            ]);
 
             console.log("Response", response);
             const txID = response.txid ?? 'unknown';
@@ -102,7 +106,7 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
 
             const updatedStatus: SavedFile[] = updated.map((file) => {
                 if (file.fileName === fileName) {
-                    return { ...file, status: { txID, satoshis, time } };
+                    return { ...file, status: { txID, uhrpURL, satoshis, time } };
                 }
                 return file;
             });
@@ -119,12 +123,13 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
 \nTime: ${time}
 \nSavedWithKeyID: ${keyID}
 \nTxID: ${txID}
+\nuhrpURL: ${uhrpURL}
 \nSatoshis: ${satoshis}
 \nFileCreatedTS: ${fileCreatedTS}
 \nFileModifiedTS: ${fileModifiedTS}
 \nOriginalFileSize: ${originalFileSize}`;
 
-            await localKVStore.set(`${txID}`, keyID);
+            await localKVStore.set(uhrpURL, keyID);
 
             const result = await window.electronAPI.writeLog(cleanFileName, logData);
             if (result.success) {
@@ -136,7 +141,7 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
             console.error('Failed to save file:', error);
             const failedUpdate: SavedFile[] = [
                 ...existing,
-                { fileName, status: { txID: 'Failed', satoshis: 'Failed', time } }
+                { fileName, status: { txID: 'Failed', uhrpURL: 'Failed', satoshis: 'Failed', time } }
             ];
             toast.error('Failed to save file: ' + error, {
                 duration: 5000,

@@ -1,5 +1,6 @@
 import { LookupResolver, Utils, WalletClient } from '@bsv/sdk';
 import { FileHash } from './FileHash';
+import { getOverlayUrl } from '../config/serviceConfig';
 
 interface OverlayOutput {
     beef: number[];
@@ -15,13 +16,6 @@ interface CreateActionResult {
     txid?: string;
     tx?: number[];
 }
-
-const overlay = new LookupResolver({
-    slapTrackers: ['https://overlay-us-1.bsvb.tech'],
-    hostOverrides: {
-        'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
-    }
-});
 
 export async function createTransaction(
     bytes: number[],
@@ -61,7 +55,7 @@ async function broadcastTransaction(response: CreateActionResult): Promise<void>
         w.write(response.tx);
         const body = new Uint8Array(w.toArray());
 
-        const overlayResponse = await fetch('https://overlay-us-1.bsvb.tech/submit', {
+        const overlayResponse = await fetch(`${getOverlayUrl()}/submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/octet-stream',
@@ -78,6 +72,13 @@ async function broadcastTransaction(response: CreateActionResult): Promise<void>
 }
 
 export async function getTransactionByFileHash(hash: number[]): Promise<OverlayQueryResult> {
+    const overlayUrl = getOverlayUrl();
+    const overlay = new LookupResolver({
+        slapTrackers: [overlayUrl],
+        hostOverrides: {
+            'ls_desktopintegrity': [overlayUrl]
+        }
+    });
     const hexHash = Utils.toHex(hash);
     const response = await overlay.query({
         service: 'ls_desktopintegrity',

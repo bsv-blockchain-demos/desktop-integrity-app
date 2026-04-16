@@ -1,11 +1,11 @@
 import { StorageUploader, StorageDownloader } from '@bsv/sdk';
 import type { WalletClient } from '@bsv/sdk';
+import { getUhrpUrl } from '../config/serviceConfig';
 
-const UHRP_SERVER = 'https://go-uhrp-eu-1.bsvblockchain.tech';
 const RETENTION_MINUTES = 365 * 24 * 60;
 
 export async function uploadToUHRP(encryptedBytes: number[], wallet: WalletClient): Promise<string> {
-    const uploader = new StorageUploader({ storageURL: UHRP_SERVER, wallet });
+    const uploader = new StorageUploader({ storageURL: getUhrpUrl(), wallet });
     const result = await uploader.publishFile({
         file: { data: encryptedBytes, type: 'application/octet-stream' },
         retentionPeriod: RETENTION_MINUTES,

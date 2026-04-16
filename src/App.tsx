@@ -8,6 +8,7 @@ import TopBar from './components/topbar';
 import Verify from './components/verify';
 import Recall from './components/recall';
 import Help from './components/help';
+import SettingsDrawer from './components/settingsDrawer';
 import { useWallet } from '../context/walletContext';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/help" element={<Help />} />
         </Routes>
       </main>
+      <SettingsDrawer />
     </div>
   );
 }

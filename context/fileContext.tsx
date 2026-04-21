@@ -57,13 +57,11 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
         let existing: SavedFile[] = [];
         let time = '';
 
+        // --- Setup: validate inputs and check for duplicates ---
         try {
-            console.log("filePath", filePath);
             fileName = filePath.split(/[/\\]/).pop() ?? '';
-
             existing = JSON.parse(localStorage.getItem('savedFiles') ?? '[]') as SavedFile[];
 
-            // Check if file already exists in logs
             const logPaths = await window.electronAPI.listLogs();
             const logContents = await Promise.all(
                 logPaths.map(async (p) => {
@@ -80,64 +78,100 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            time = new Date().toLocaleString();
-
-            const stats = await window.electronAPI.getFileStats(files[0]);
-            console.log("stats", stats);
-
-            if (existing.some(file => file.fileName === fileName)) {
-                fileName = fileName + " (" + existing.length + ")";
-            }
-            const updated: SavedFile[] = [
-                ...existing,
-                { fileName, status: { txID: 'Creating...', ...(uhrpEnabled && { uhrpURL: 'Uploading...' }), time } }
-            ];
-            localStorage.setItem('savedFiles', JSON.stringify(updated));
-            setSavedFiles(updated);
-
             if (!wallet) throw new Error("Wallet not connected");
             if (!localKVStore) throw new Error("Wallet not fully initialized");
             if (!fileContent) throw new Error("No file content");
 
-            let txID: string;
-            let uhrpURL: string | undefined;
+            time = new Date().toLocaleString();
 
-            if (uhrpEnabled) {
-                const encryptedFileContent = await wallet.encrypt({
-                    plaintext: fileContent.bytes,
+            if (existing.some(file => file.fileName === fileName)) {
+                fileName = fileName + " (" + existing.length + ")";
+            }
+        } catch (error) {
+            console.error('Setup failed:', error);
+            toast.error('Failed to save file: ' + error, {
+                duration: 5000,
+                position: 'top-center',
+                id: 'file-save-error',
+            });
+            setFiles([]);
+            setFileContent(null);
+            setFilePath('');
+            return;
+        }
+
+        // Show pending state
+        const pending: SavedFile[] = [
+            ...existing,
+            { fileName, status: { txID: 'Creating...', ...(uhrpEnabled && { uhrpURL: 'Uploading...' }), time } }
+        ];
+        localStorage.setItem('savedFiles', JSON.stringify(pending));
+        setSavedFiles(pending);
+
+        const stats = await window.electronAPI.getFileStats(files[0]).catch(e => {
+            console.error('Failed to get file stats:', e);
+            return null;
+        });
+
+        let txID = 'Failed';
+        let uhrpURL: string | undefined = uhrpEnabled ? 'Failed' : undefined;
+
+        // --- Step 1: Blockchain transaction ---
+        try {
+            const response = await createTransaction(fileContent!.bytes, wallet!, fileName);
+            txID = response.txid ?? 'unknown';
+            console.log('Transaction created:', txID);
+        } catch (error) {
+            console.error('Transaction failed:', error);
+            toast.error('Failed to save to blockchain: ' + error, {
+                duration: 5000,
+                position: 'top-center',
+                id: 'tx-error',
+            });
+        }
+
+        // --- Step 2: UHRP upload ---
+        if (uhrpEnabled) {
+            try {
+                const encryptedFileContent = await wallet!.encrypt({
+                    plaintext: fileContent!.bytes,
                     keyID,
                     protocolID: [0, 'fileintegrity'],
                 });
-                const [response, url] = await Promise.all([
-                    createTransaction(fileContent.bytes, wallet, fileName),
-                    uploadToUHRP(encryptedFileContent.ciphertext, wallet),
-                ]);
-                txID = response.txid ?? 'unknown';
+                const url = await uploadToUHRP(encryptedFileContent.ciphertext, wallet!);
                 uhrpURL = url;
-                await localKVStore.set(uhrpURL, keyID);
-            } else {
-                const response = await createTransaction(fileContent.bytes, wallet, fileName);
-                txID = response.txid ?? 'unknown';
+                await localKVStore!.set(uhrpURL, keyID);
+                console.log('UHRP upload complete:', uhrpURL);
+            } catch (error) {
+                console.error('UHRP upload failed:', error);
+                toast.error('UHRP upload failed: ' + error, {
+                    duration: 5000,
+                    position: 'top-center',
+                    id: 'uhrp-error',
+                });
             }
+        }
 
-            console.log("txID", txID, "uhrpURL", uhrpURL);
+        console.log('txID:', txID, 'uhrpURL:', uhrpURL);
 
-            const updatedStatus: SavedFile[] = updated.map((file) => {
-                if (file.fileName === fileName) {
-                    return { ...file, status: { txID, ...(uhrpURL && { uhrpURL }), time } };
-                }
-                return file;
-            });
-            localStorage.setItem('savedFiles', JSON.stringify(updatedStatus));
-            setSavedFiles(updatedStatus);
+        // Update status with final state
+        const updatedStatus: SavedFile[] = pending.map((file) => {
+            if (file.fileName === fileName) {
+                return { ...file, status: { txID, ...(uhrpURL !== undefined && { uhrpURL }), time } };
+            }
+            return file;
+        });
+        localStorage.setItem('savedFiles', JSON.stringify(updatedStatus));
+        setSavedFiles(updatedStatus);
 
-            const fileCreatedTS = stats?.createdTS.replace('T', ' ') ?? '';
-            const fileModifiedTS = stats?.modifiedTS.replace('T', ' ') ?? '';
-            const cleanFileName = fileName.replace(/\s\(\d+\)$/, '');
-            const originalFileSize = stats?.size ?? 0;
-            const uhrpLine = uhrpURL ? `\nuhrpURL: ${uhrpURL}` : '';
+        // Write log regardless of step outcomes
+        const fileCreatedTS = stats?.createdTS.replace('T', ' ') ?? '';
+        const fileModifiedTS = stats?.modifiedTS.replace('T', ' ') ?? '';
+        const cleanFileName = fileName.replace(/\s\(\d+\)$/, '');
+        const originalFileSize = stats?.size ?? 0;
+        const uhrpLine = uhrpURL && uhrpURL !== 'Failed' ? `\nuhrpURL: ${uhrpURL}` : '';
 
-            const logData = `SavedFile: ${cleanFileName}
+        const logData = `SavedFile: ${cleanFileName}
 \nTime: ${time}
 \nSavedWithKeyID: ${keyID}
 \nTxID: ${txID}${uhrpLine}
@@ -145,31 +179,15 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
 \nFileModifiedTS: ${fileModifiedTS}
 \nOriginalFileSize: ${originalFileSize}`;
 
-            const result = await window.electronAPI.writeLog(cleanFileName, logData);
-            if (result.success) {
-                console.log('Log saved at', result.path);
-            } else {
-                console.error('Failed to save log:', result.error);
-            }
-        } catch (error) {
-            console.error('Failed to save file:', error);
-            const failedUpdate: SavedFile[] = [
-                ...existing,
-                { fileName, status: { txID: 'Failed', ...(uhrpEnabled && { uhrpURL: 'Failed' }), time } }
-            ];
-            toast.error('Failed to save file: ' + error, {
-                duration: 5000,
-                position: 'top-center',
-                id: 'file-save-error',
-            });
-            localStorage.setItem('savedFiles', JSON.stringify(failedUpdate));
-            setSavedFiles(failedUpdate);
+        const result = await window.electronAPI.writeLog(cleanFileName, logData).catch(e => ({ success: false, error: e, path: '' }));
+        if (result.success) {
+            console.log('Log saved at', result.path);
+        } else {
+            console.error('Failed to save log:', result.error);
         }
 
-        if (files.length !== 0) {
-            setFiles([]);
-            setFileContent(null);
-        }
+        setFiles([]);
+        setFileContent(null);
         setFilePath('');
     };
 

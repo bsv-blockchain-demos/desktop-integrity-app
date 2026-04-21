@@ -29,17 +29,19 @@ function Status({ savedFiles }: { savedFiles: SavedFile[] }) {
           <tbody>
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map((file, index) => {
-                const isSuccess = file.status?.txID && file.status.txID !== 'Failed';
+                const txOk = !!file.status?.txID && file.status.txID !== 'Failed' && file.status.txID !== 'Creating...';
+                const uhrpFailed = file.status?.uhrpURL === 'Failed';
+                const rowClass = !txOk ? 'failed' : uhrpFailed ? 'partial' : 'success';
 
                 return (
-                  <tr key={index} className={isSuccess ? 'success' : 'failed'}>
+                  <tr key={index} className={rowClass}>
                     <td
                       className="transaction-id"
                       onClick={() => {
-                        if (!isSuccess) return;
+                        if (!txOk) return;
                         copyToClipboard(file.status.txID, 'Transaction ID');
                       }}
-                      title={isSuccess ? 'Click to copy' : undefined}
+                      title={txOk ? 'Click to copy' : undefined}
                     >
                       {file.status?.txID
                         ? `${file.status.txID.substring(0, 12)}...`

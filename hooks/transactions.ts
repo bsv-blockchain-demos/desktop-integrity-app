@@ -1,4 +1,4 @@
-import { LookupResolver, Utils, WalletClient } from '@bsv/sdk';
+import { LookupResolver, TopicBroadcaster, Transaction, Utils, WalletClient } from '@bsv/sdk';
 import { FileHash } from './FileHash';
 import { getOverlayUrl } from '../config/serviceConfig';
 
@@ -38,46 +38,35 @@ export async function createTransaction(
         },
     }) as CreateActionResult;
 
+    console.log("Transaction created:", { txid: response.txid, hasTx: !!response.tx });
     broadcastTransaction(response);
 
     return response;
 }
 
-async function broadcastTransaction(response: CreateActionResult): Promise<void> {
-    try {
-        if (!response.tx) {
-            console.error("No tx in response, cannot broadcast");
-            return;
-        }
-
-        const w = new Utils.Writer();
-        w.writeVarIntNum(response.tx.length);
-        w.write(response.tx);
-        const body = new Uint8Array(w.toArray());
-
-        const overlayResponse = await fetch(`${getOverlayUrl()}/submit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/octet-stream',
-                'x-topics': JSON.stringify(['tm_desktopintegrity']),
-            },
-            body,
-        });
-
-        const data = await overlayResponse.json();
-        console.log("Overlay response:", data);
-    } catch (error) {
-        console.error("Error broadcasting to overlay:", error);
+function broadcastTransaction(response: CreateActionResult): void {
+    if (!response.tx) {
+        console.error("No tx in response, cannot broadcast");
+        return;
     }
+    const overlayUrl = getOverlayUrl();
+    const overlay = new LookupResolver({
+        slapTrackers: [overlayUrl],
+        hostOverrides: { 'ls_desktopintegrity': [overlayUrl] }
+    });
+    const tb = new TopicBroadcaster(['tm_desktopintegrity'], { resolver: overlay });
+    const tx = Transaction.fromBEEF(response.tx);
+    console.log("Broadcasting transaction:", tx);
+    tx.broadcast(tb)
+        .then(r => console.log("Overlay response:", r))
+        .catch(e => console.error("Error broadcasting to overlay:", e));
 }
 
 export async function getTransactionByFileHash(hash: number[]): Promise<OverlayQueryResult> {
     const overlayUrl = getOverlayUrl();
     const overlay = new LookupResolver({
         slapTrackers: [overlayUrl],
-        hostOverrides: {
-            'ls_desktopintegrity': [overlayUrl]
-        }
+        hostOverrides: { 'ls_desktopintegrity': [overlayUrl] }
     });
     const hexHash = Utils.toHex(hash);
     const response = await overlay.query({

@@ -5,11 +5,14 @@ import { getUhrpUrl } from '../config/serviceConfig';
 const RETENTION_MINUTES = 365 * 24 * 60;
 
 export async function uploadToUHRP(encryptedBytes: number[], wallet: WalletClient): Promise<string> {
-    const uploader = new StorageUploader({ storageURL: getUhrpUrl(), wallet });
+    const uhrpUrl = getUhrpUrl();
+    console.log("Uploading to UHRP:", uhrpUrl);
+    const uploader = new StorageUploader({ storageURL: uhrpUrl, wallet });
     const result = await uploader.publishFile({
         file: { data: encryptedBytes, type: 'application/octet-stream' },
         retentionPeriod: RETENTION_MINUTES,
     });
+    console.log("UHRP upload complete:", result.uhrpURL);
     return result.uhrpURL;
 }
 

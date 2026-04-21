@@ -330,12 +330,14 @@
   border-radius: 4px;
 }
 
-.status-table tr.success .transaction-id {
+.status-table tr.success .transaction-id,
+.status-table tr.partial .transaction-id {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.status-table tr.success .transaction-id:hover {
+.status-table tr.success .transaction-id:hover,
+.status-table tr.partial .transaction-id:hover {
   background: rgba(16, 185, 129, 0.2);
   transform: scale(1.05);
 }
@@ -365,6 +367,15 @@
 .status-table tr.failed td {
   color: #ef4444;
   font-weight: 500;
+}
+
+.status-table tr.partial td {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status-table tr.partial td:nth-child(3) {
+  color: #f59e0b;
 }
 
 /* Timestamp styling */

@@ -35,6 +35,7 @@ export async function createTransaction(
         ],
         options: {
             randomizeOutputs: false,
+            acceptDelayedBroadcast: false,
         },
     }) as CreateActionResult;
 
@@ -52,7 +53,10 @@ function broadcastTransaction(response: CreateActionResult): void {
     const overlayUrl = getOverlayUrl();
     const overlay = new LookupResolver({
         slapTrackers: [overlayUrl],
-        hostOverrides: { 'ls_desktopintegrity': [overlayUrl] }
+        hostOverrides: {
+            'ls_ship': [overlayUrl],
+            'ls_desktopintegrity': [overlayUrl],
+        }
     });
     const tb = new TopicBroadcaster(['tm_desktopintegrity'], { resolver: overlay });
     const tx = Transaction.fromBEEF(response.tx);
@@ -66,7 +70,10 @@ export async function getTransactionByFileHash(hash: number[]): Promise<OverlayQ
     const overlayUrl = getOverlayUrl();
     const overlay = new LookupResolver({
         slapTrackers: [overlayUrl],
-        hostOverrides: { 'ls_desktopintegrity': [overlayUrl] }
+        hostOverrides: {
+            'ls_ship': [overlayUrl],
+            'ls_desktopintegrity': [overlayUrl],
+        }
     });
     const hexHash = Utils.toHex(hash);
     const response = await overlay.query({

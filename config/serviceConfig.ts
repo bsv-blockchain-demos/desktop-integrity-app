@@ -1,6 +1,6 @@
 export const DEFAULTS = {
     overlayUrl: 'https://overlay-us-1.bsvb.tech',
-    uhrpUrl: 'https://go-uhrp-eu-1.bsvblockchain.tech',
+    uhrpUrl: 'https://go-uhrp-us-1.bsvblockchain.tech',
 } as const;
 
 export function getOverlayUrl(): string {

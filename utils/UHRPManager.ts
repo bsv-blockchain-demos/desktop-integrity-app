@@ -2,7 +2,7 @@ import { StorageUploader, StorageDownloader } from '@bsv/sdk';
 import type { WalletClient } from '@bsv/sdk';
 import { getUhrpUrl } from '../config/serviceConfig';
 
-const RETENTION_MINUTES = 365 * 24 * 60;
+const RETENTION_MINUTES = 30 * 24 * 60; // 30 days
 
 export async function uploadToUHRP(encryptedBytes: number[], wallet: WalletClient): Promise<string> {
     const uhrpUrl = getUhrpUrl();

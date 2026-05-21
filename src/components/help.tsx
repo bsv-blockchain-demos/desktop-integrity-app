@@ -168,6 +168,31 @@ function Help() {
                     </p>
                 </Section>
 
+                <Section id="services" icon="🛰️" title="Overlay & UHRP URLs (Advanced)">
+                    <p>
+                        The settings drawer (left edge of the window) lets you point the app at custom
+                        BSV infrastructure. Most users should leave these on the defaults.
+                    </p>
+                    <ul className="help-list">
+                        <li>
+                            <strong>Overlay URL</strong> — the overlay server the app queries for two things:
+                            (a) publishing and looking up file-hash records used by Verify, and
+                            (b) resolving where recalled files are hosted (the <code>ls_uhrp</code> lookup).
+                        </li>
+                        <li>
+                            <strong>UHRP URL</strong> — the storage server the app uploads encrypted files to
+                            when Recall is on. The storage server publishes a hosting advertisement to an
+                            overlay; you need to query that same overlay to find the file again.
+                        </li>
+                    </ul>
+                    <p className="help-note">
+                        <strong>Heads up:</strong> these two values are linked. A custom UHRP server typically
+                        publishes its advertisements to a specific overlay. If you change the UHRP URL but
+                        leave the Overlay URL on the default, recall will fail to find your files because the
+                        default overlay won't know about them. Change both together, or use Reset to defaults.
+                    </p>
+                </Section>
+
                 <Section id="wallet" icon="🔑" title="Your Wallet">
                     <p>
                         This app uses a <strong>BSV wallet</strong> to sign and pay for blockchain transactions.

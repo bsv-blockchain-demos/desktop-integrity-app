@@ -115,6 +115,25 @@
     white-space: nowrap;
 }
 
+.settings-field .settings-field-help {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    opacity: 0.85;
+}
+
+.settings-field .settings-default-value {
+    cursor: pointer;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    text-decoration: underline dotted transparent;
+    text-underline-offset: 2px;
+}
+
+.settings-field .settings-default-value:hover {
+    color: var(--text-secondary);
+    text-decoration-color: var(--text-muted);
+}
+
 .settings-actions {
     display: flex;
     flex-direction: column;

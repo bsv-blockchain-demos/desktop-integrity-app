@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../../context/walletContext';
 import { downloadFromUHRP } from '../../utils/UHRPManager';
+import { copyToClipboard } from '../../utils/clipboard';
 import toast from 'react-hot-toast';
 import '../css/layout.css';
 import '../css/recall.css';
@@ -59,6 +60,7 @@ function Recall() {
             const objectContent = parseLogContent(rawContent.content);
             const uhrpURL = objectContent.uhrpURL;
             let keyID = objectContent.SavedWithKeyID;
+            console.log("Recall from log:", { uhrpURL, keyID, file: objectContent.SavedFile });
 
             if (!uhrpURL) {
                 toast.error("UHRP URL not found in log");
@@ -75,6 +77,7 @@ function Recall() {
             }
 
             const encryptedBytes = await downloadFromUHRP(uhrpURL);
+            console.log("Downloaded encrypted bytes:", encryptedBytes.length);
 
             if (!wallet) {
                 toast.error("Wallet not connected");
@@ -86,6 +89,7 @@ function Recall() {
                 keyID,
                 ciphertext: encryptedBytes,
             });
+            console.log("Decrypted bytes:", plaintext.length);
 
             setDecryptedContent({
                 data: plaintext,
@@ -95,7 +99,7 @@ function Recall() {
             setSelectedLog(null);
         } catch (error) {
             console.error("Error recalling file from log:", error);
-            toast.error("Error recalling file from log");
+            toast.error("Failed to recall: " + (error instanceof Error ? error.message : String(error)));
         } finally {
             setIsRecalling(false);
         }
@@ -106,6 +110,7 @@ function Recall() {
         setIsRecalling(true);
         try {
             if (!localKVStore) { toast.error("Wallet not fully initialized"); return; }
+            console.log("Recall from UHRP URL:", uhrpURLInput);
             const keyID = await localKVStore.get(uhrpURLInput);
             if (!keyID) {
                 toast.error("KeyID not found for this UHRP URL");
@@ -113,6 +118,7 @@ function Recall() {
             }
 
             const encryptedBytes = await downloadFromUHRP(uhrpURLInput);
+            console.log("Downloaded encrypted bytes:", encryptedBytes.length);
 
             if (!wallet) {
                 toast.error("Wallet not connected");
@@ -124,11 +130,12 @@ function Recall() {
                 keyID: keyID as string,
                 ciphertext: encryptedBytes,
             });
+            console.log("Decrypted bytes:", plaintext.length);
 
             setDecryptedContent({ data: plaintext, filename: "file", sourceTxid: uhrpURLInput });
         } catch (error) {
             console.error("Error recalling file by UHRP URL:", error);
-            toast.error("Error recalling file by UHRP URL");
+            toast.error("Failed to recall: " + (error instanceof Error ? error.message : String(error)));
         } finally {
             setIsRecalling(false);
         }
@@ -194,15 +201,6 @@ function Recall() {
         } catch (error) {
             console.error('Error loading log preview:', error);
             setLogPreviewData(null);
-        }
-    };
-
-    const copyToClipboard = async (text: string, label: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            toast.success(`${label} copied to clipboard!`);
-        } catch {
-            toast.error('Failed to copy to clipboard');
         }
     };
 

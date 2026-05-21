@@ -1,18 +1,8 @@
 import React from 'react';
-import { toast } from 'react-hot-toast';
+import { copyToClipboard } from '../../utils/clipboard';
 import type { SavedFile } from '../../types/index';
 
 function Status({ savedFiles }: { savedFiles: SavedFile[] }) {
-  const copyToClipboard = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${label} copied to clipboard!`);
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-      toast.error('Failed to copy to clipboard');
-    }
-  };
-
   return (
     <>
       <h1 className="block-header">Status</h1>

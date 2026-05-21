@@ -8,6 +8,7 @@ import {
     setUhrpUrl,
     resetToDefaults,
 } from '../../config/serviceConfig';
+import { copyToClipboard } from '../../utils/clipboard';
 import '../css/settingsDrawer.css';
 
 function SettingsDrawer() {
@@ -58,7 +59,20 @@ function SettingsDrawer() {
                             onChange={e => setOverlayUrlState(e.target.value)}
                             spellCheck={false}
                         />
-                        <span className="settings-default">Default: {DEFAULTS.overlayUrl}</span>
+                        <span className="settings-field-help">
+                            Used to publish and look up file-hash records (public integrity verification)
+                            and to resolve UHRP download hosts for recall.
+                        </span>
+                        <span className="settings-default">
+                            Default:{' '}
+                            <span
+                                className="settings-default-value"
+                                onClick={() => copyToClipboard(DEFAULTS.overlayUrl, 'Default Overlay URL')}
+                                title="Click to copy"
+                            >
+                                {DEFAULTS.overlayUrl}
+                            </span>
+                        </span>
                     </div>
 
                     <div className="settings-field">
@@ -69,7 +83,21 @@ function SettingsDrawer() {
                             onChange={e => setUhrpUrlState(e.target.value)}
                             spellCheck={false}
                         />
-                        <span className="settings-default">Default: {DEFAULTS.uhrpUrl}</span>
+                        <span className="settings-field-help">
+                            UHRP storage server used to upload encrypted files when recall is on.
+                            A different server typically publishes its advertisements to a different overlay —
+                            change Overlay URL to match, or recall won't find your files.
+                        </span>
+                        <span className="settings-default">
+                            Default:{' '}
+                            <span
+                                className="settings-default-value"
+                                onClick={() => copyToClipboard(DEFAULTS.uhrpUrl, 'Default UHRP URL')}
+                                title="Click to copy"
+                            >
+                                {DEFAULTS.uhrpUrl}
+                            </span>
+                        </span>
                     </div>
 
                     <div className="settings-actions">

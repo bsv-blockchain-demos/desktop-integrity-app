@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { toast } from 'react-hot-toast';
 import type { SavedFile } from '../../types/index';
 
 function Status({ savedFiles }: { savedFiles: SavedFile[] }) {
-  const [expandedTxIds, setExpandedTxIds] = useState<number[]>([]);
-
-  const copyToClipboard = async (txId: string) => {
+  const copyToClipboard = async (text: string, label: string) => {
     try {
-      await navigator.clipboard.writeText(txId);
-      toast.success('Transaction ID copied to clipboard!');
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied to clipboard!`);
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
       toast.error('Failed to copy to clipboard');
@@ -24,33 +22,51 @@ function Status({ savedFiles }: { savedFiles: SavedFile[] }) {
             <tr>
               <th>Transaction ID</th>
               <th>File name</th>
-              <th>Satoshis</th>
+              <th>UHRP URL</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody>
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map((file, index) => {
-                const isSuccess = file.status?.txID && file.status.txID !== 'Failed';
+                const txOk = !!file.status?.txID && file.status.txID !== 'Failed' && file.status.txID !== 'Creating...';
+                const uhrpFailed = file.status?.uhrpURL === 'Failed';
+                const rowClass = !txOk ? 'failed' : uhrpFailed ? 'partial' : 'success';
 
                 return (
-                  <tr key={index} className={isSuccess ? 'success' : 'failed'}>
+                  <tr key={index} className={rowClass}>
                     <td
-                      className={`transaction-id ${expandedTxIds.includes(index) ? 'show-full' : ''}`}
+                      className="transaction-id"
                       onClick={() => {
-                        if (!isSuccess) return;
-                        if (expandedTxIds.includes(index)) {
-                          copyToClipboard(file.status.txID);
-                          setExpandedTxIds(expandedTxIds.filter(id => id !== index));
-                        } else {
-                          setExpandedTxIds([...expandedTxIds, index]);
-                        }
+                        if (!txOk) return;
+                        copyToClipboard(file.status.txID, 'Transaction ID');
                       }}
+                      title={txOk ? 'Click to copy' : undefined}
                     >
-                      {file.status?.txID ?? 'Failed'}
+                      {file.status?.txID
+                        ? `${file.status.txID.substring(0, 12)}...`
+                        : 'Failed'}
                     </td>
                     <td>{file.fileName}</td>
-                    <td>{file.status?.satoshis ?? 'Failed'}</td>
+                    <td
+                      className="transaction-id"
+                      onClick={() => {
+                        const url = file.status?.uhrpURL;
+                        if (!url || url === 'Uploading...' || url === 'Failed') return;
+                        copyToClipboard(url, 'UHRP URL');
+                      }}
+                      title={
+                        file.status?.uhrpURL && file.status.uhrpURL !== 'Uploading...' && file.status.uhrpURL !== 'Failed'
+                          ? 'Click to copy'
+                          : undefined
+                      }
+                    >
+                      {file.status?.uhrpURL
+                        ? file.status.uhrpURL === 'Uploading...' || file.status.uhrpURL === 'Failed'
+                          ? file.status.uhrpURL
+                          : `${file.status.uhrpURL.substring(0, 16)}...`
+                        : '–'}
+                    </td>
                     <td>{file.status?.time ?? 'N/A'}</td>
                   </tr>
                 );

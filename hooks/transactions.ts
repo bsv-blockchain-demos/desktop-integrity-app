@@ -1,10 +1,10 @@
-import { LookupResolver, Utils, WalletClient } from '@bsv/sdk';
+import { LookupResolver, TopicBroadcaster, Transaction, Utils, WalletClient } from '@bsv/sdk';
 import { FileHash } from './FileHash';
+import { getOverlayUrl } from '../config/serviceConfig';
 
 interface OverlayOutput {
     beef: number[];
     outputIndex: number;
-    context?: number[];
     [key: string]: unknown;
 }
 
@@ -17,17 +17,9 @@ interface CreateActionResult {
     tx?: number[];
 }
 
-const overlay = new LookupResolver({
-    slapTrackers: ['https://overlay-us-1.bsvb.tech'],
-    hostOverrides: {
-        'ls_desktopintegrity': ['https://overlay-us-1.bsvb.tech']
-    }
-});
-
 export async function createTransaction(
     bytes: number[],
     wallet: WalletClient,
-    encryptedFileContent: number[],
     fileName: string
 ): Promise<CreateActionResult> {
     if (!wallet) throw new Error("Wallet not connected");
@@ -43,62 +35,50 @@ export async function createTransaction(
         ],
         options: {
             randomizeOutputs: false,
+            acceptDelayedBroadcast: false,
         },
     }) as CreateActionResult;
 
-    // Fire-and-forget: overlay broadcast is a convenience layer; the txid from createAction is authoritative
-    broadcastTransaction(response, encryptedFileContent);
+    console.log("Transaction created:", { txid: response.txid, hasTx: !!response.tx });
+    broadcastTransaction(response);
 
     return response;
 }
 
-export async function broadcastTransaction(response: CreateActionResult, encryptedFileContent: number[]): Promise<void> {
-    try {
-        if (!response.tx) {
-            console.error("No tx in response, cannot broadcast");
-            return;
-        }
-
-        console.log("Broadcasting transaction to overlay");
-
-        const headers = {
-            'x-includes-off-chain-values': 'true',
-            'Content-Type': 'application/octet-stream',
-            'x-topics': JSON.stringify(['tm_desktopintegrity'])
-        };
-
-        const w = new Utils.Writer();
-        w.writeVarIntNum(response.tx.length);
-        w.write(response.tx);
-        w.write(encryptedFileContent);
-        const body = new Uint8Array(w.toArray());
-
-        const overlayResponse = await fetch('https://overlay-us-1.bsvb.tech/submit', {
-            method: 'POST',
-            headers,
-            body,
-        });
-
-        const data = await overlayResponse.json();
-        console.log("Overlay response: ", data);
-    } catch (error) {
-        console.error("Error broadcasting file integrity tx:", error);
+function broadcastTransaction(response: CreateActionResult): void {
+    if (!response.tx) {
+        console.error("No tx in response, cannot broadcast");
+        return;
     }
+    const overlayUrl = getOverlayUrl();
+    const overlay = new LookupResolver({
+        slapTrackers: [overlayUrl],
+        hostOverrides: {
+            'ls_ship': [overlayUrl],
+            'ls_desktopintegrity': [overlayUrl],
+        }
+    });
+    const tb = new TopicBroadcaster(['tm_desktopintegrity'], { resolver: overlay });
+    const tx = Transaction.fromBEEF(response.tx);
+    console.log("Broadcasting transaction:", tx);
+    tx.broadcast(tb)
+        .then(r => console.log("Overlay response:", r))
+        .catch(e => console.error("Error broadcasting to overlay:", e));
 }
 
 export async function getTransactionByFileHash(hash: number[]): Promise<OverlayQueryResult> {
+    const overlayUrl = getOverlayUrl();
+    const overlay = new LookupResolver({
+        slapTrackers: [overlayUrl],
+        hostOverrides: {
+            'ls_ship': [overlayUrl],
+            'ls_desktopintegrity': [overlayUrl],
+        }
+    });
     const hexHash = Utils.toHex(hash);
     const response = await overlay.query({
         service: 'ls_desktopintegrity',
         query: { fileHash: hexHash }
-    }, 10000) as OverlayQueryResult;
-    return response;
-}
-
-export async function getTransactionByTxID(txid: string): Promise<OverlayQueryResult> {
-    const response = await overlay.query({
-        service: 'ls_desktopintegrity',
-        query: { txid }
     }, 10000) as OverlayQueryResult;
     return response;
 }

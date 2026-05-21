@@ -1,0 +1,175 @@
+.settings-drawer {
+    position: fixed;
+    top: 32px;
+    right: 0;
+    height: calc(100vh - 32px);
+    width: 300px;
+    background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-left: 1px solid var(--primary-blue-20);
+    box-shadow: -6px 0 24px rgba(0, 0, 0, 0.4);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-drawer.open {
+    transform: translateX(0);
+}
+
+/* Tab that protrudes from the left edge of the drawer */
+.settings-tab {
+    position: absolute;
+    left: -28px;
+    top: 20px;
+    width: 28px;
+    height: 56px;
+    background-color: #4c4f96;
+    border: none;
+    border-radius: 6px 0 0 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: background-color 0.2s ease;
+    box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+    -webkit-app-region: no-drag;
+}
+
+.settings-tab:hover {
+    background-color: #3d4080;
+}
+
+.settings-tab svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.settings-drawer.open .settings-tab svg {
+    transform: rotate(180deg);
+}
+
+/* Drawer inner content */
+.settings-drawer-inner {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.settings-drawer h2 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--primary-blue-15);
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.settings-field label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.settings-field input {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--primary-blue-20);
+    border-radius: var(--border-radius);
+    padding: 0.55rem 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.settings-field input:focus {
+    border-color: var(--primary-blue-50);
+    color: var(--text-primary);
+}
+
+.settings-field .settings-default {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    opacity: 0.7;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.settings-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--primary-blue-10);
+}
+
+.settings-save-btn {
+    background: var(--primary-blue-100);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    transition: background 0.2s ease;
+}
+
+.settings-save-btn:hover {
+    background: rgba(var(--primary-blue), 0.85);
+}
+
+.settings-reset-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--primary-blue-15);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    transition: all 0.2s ease;
+}
+
+.settings-reset-btn:hover {
+    border-color: var(--primary-blue-30);
+    color: var(--text-secondary);
+}
+
+/* Backdrop */
+.settings-backdrop {
+    position: fixed;
+    inset: 32px 0 0 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 899;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.settings-backdrop.visible {
+    opacity: 1;
+    pointer-events: all;
+}

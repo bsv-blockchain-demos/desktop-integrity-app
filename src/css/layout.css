@@ -330,12 +330,14 @@
   border-radius: 4px;
 }
 
-.status-table tr.success .transaction-id {
+.status-table tr.success .transaction-id,
+.status-table tr.partial .transaction-id {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.status-table tr.success .transaction-id:hover {
+.status-table tr.success .transaction-id:hover,
+.status-table tr.partial .transaction-id:hover {
   background: rgba(16, 185, 129, 0.2);
   transform: scale(1.05);
 }
@@ -365,6 +367,15 @@
 .status-table tr.failed td {
   color: #ef4444;
   font-weight: 500;
+}
+
+.status-table tr.partial td {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status-table tr.partial td:nth-child(3) {
+  color: #f59e0b;
 }
 
 /* Timestamp styling */
@@ -640,6 +651,38 @@
 
 .loading {
   animation: pulse 2s infinite;
+}
+
+/* Header row with inline help link */
+.block-header-row {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.block-header-row .block-header {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.block-header-row .help-link {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Shared help link */
+.help-link {
+    font-size: 0.78rem;
+    color: #818cf8;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+}
+
+.help-link:hover {
+    opacity: 1;
+    text-decoration: underline;
 }
 
 /* Responsive layout */

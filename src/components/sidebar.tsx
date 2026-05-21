@@ -45,12 +45,19 @@ function Sidebar() {
                     <span className="sidebar-icon">✅</span>
                     Verify Files
                 </Link>
-                <Link 
-                    to="/recall" 
+                <Link
+                    to="/recall"
                     className={`sidebar-btn ${isActive('/recall') ? 'active' : ''}`}
                 >
                     <span className="sidebar-icon">🔄</span>
                     Recall Files
+                </Link>
+                <Link
+                    to="/help"
+                    className={`sidebar-btn ${isActive('/help') ? 'active' : ''}`}
+                >
+                    <span className="sidebar-icon">❓</span>
+                    How It Works
                 </Link>
             </nav>
 

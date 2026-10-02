@@ -1,163 +1,97 @@
 # Desktop File Integrity
 
-A blockchain-based file integrity and timestamping application built with React, Electron, and the BSV blockchain. Users can securely store files on the blockchain with encrypted content and cryptographic proof of existence, and later recall and decrypt those files.
+An Electron application for recording file hashes on BSV, finding matching records through an overlay service and optionally retrieving encrypted file copies from UHRP storage. The interface uses React, TypeScript and Vite.
 
-## Purpose
+The blockchain transaction contains the file's SHA-256 hash. When **Enable Recall (UHRP)** is selected, the app separately encrypts and uploads the file to a storage service. A matching hash records the submitted bytes; it does not prove authorship or the file's original creation time.
 
-- **Timestamp and prove file creation** — store a cryptographic hash of the file on-chain as immutable proof
-- **Encrypted file storage** — encrypt the file and store it as transaction metadata, recoverable later
-- **File recall** — decrypt and download files using transaction logs or a transaction ID
-- **Verify file integrity** — query the BSV overlay network to confirm a file's hash exists on-chain
+## Main workflows
 
-## Key Features
+| Workflow | Current behaviour |
+| --- | --- |
+| Save | Read a file up to 25 MiB, create a one-satoshi hash output and submit the transaction to the `tm_desktopintegrity` overlay topic. |
+| Enable recall | Encrypt the file through the connected wallet and request 30 days of UHRP storage. This option is enabled by default. |
+| Verify | Hash a selected file and query `ls_desktopintegrity` for matching transactions. |
+| Recall | Download an encrypted copy using a saved log or UHRP URL, then decrypt it through the original wallet. |
+| Logs | Keep local records of the filename, transaction ID, key identifier, file metadata and any UHRP URL. |
 
-- Select files via file dialog or drag-and-drop
-- Files are encrypted using your BSV wallet before being stored on-chain
-- File hash stored in the locking script; encrypted content stored as transaction metadata
-- Recall files by browsing saved logs or entering a transaction ID directly
-- Verify any file against the blockchain by hash
-- Transaction history with log viewer
-
-## Technology Stack
-
-- **Frontend**: React 19, TypeScript, Vite, React Router
-- **Desktop**: Electron 28
-- **Blockchain**: BSV SDK, BSV Overlay Network
-- **Styling**: CSS
-- **Notifications**: React Hot Toast
+Hash publication and storage upload are separate steps and can succeed or fail independently. Overlay submission runs asynchronously after transaction creation; a transaction ID alone does not establish that overlay lookup or recall will work.
 
 ## Prerequisites
 
-- Node.js 18 or higher
-- npm
-- A BSV wallet — used for encryption and transaction signing. Must be running before the app will connect. Two options:
-  - [MetaNet Client](https://projectbabbage.com)
-  - [BSV Desktop](https://github.com/bsv-blockchain/bsv-desktop)
+- Node.js 22.12 or newer and npm.
+- A desktop environment supported by Electron.
+- A running, unlocked BRC-100 wallet with funds for transactions and any storage charges.
+- Access to the configured overlay and, for recall, a UHRP storage service.
 
-## Installation
+## Local development
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd desktop-file-integrity
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-## Running the App
-
-### Production (recommended)
-
-Builds everything and launches the packaged app for your current OS:
-
-```bash
-npm run start
+```sh
+git clone https://github.com/bsv-blockchain-demos/desktop-integrity-app.git
+cd desktop-integrity-app
+npm ci
 ```
 
-### Create a distributable installer
+Start the renderer in one terminal:
 
-```bash
-npm run build:win     # Windows (NSIS installer + portable exe)
-npm run build:mac     # macOS (DMG)
-npm run build:linux   # Linux (AppImage + deb)
-npm run build:all     # All platforms at once
-```
-
-Installers are written to the `release/` directory.
-
-### Development
-
-Development requires two terminals running simultaneously:
-
-**Terminal 1** — start the Vite renderer dev server:
-```bash
+```sh
 npm run dev
 ```
 
-**Terminal 2** — compile and launch Electron (connects to the Vite dev server):
-```bash
+Compile and launch Electron in another terminal:
+
+```sh
 npm run electron
 ```
 
-## Usage
+Electron loads `http://localhost:5173` in development. Keep that port available; if Vite selects a different port, Electron will still request 5173. Opening the Vite page in a regular browser is insufficient for file dialogs and local logs, which use Electron's preload API.
 
-### Saving a File to the Blockchain
+The wallet client uses the application origin `localhost:3000`. This is the origin passed to the wallet, not the Vite server port.
 
-1. Ensure MetaNet Client is running and unlocked
-2. Open the app — it will connect to your wallet automatically on startup
-3. Select a file using the file picker or drag-and-drop
-4. Click **Save to blockchain**
-5. The file is encrypted, its hash is stored on-chain, and a local log is saved
+## Configuration
 
-### Recalling a File
+Use the settings drawer to change service URLs. Defaults are defined in [config/serviceConfig.ts](config/serviceConfig.ts):
 
-1. Navigate to **Recall Files**
-2. Choose a recovery method:
-   - **From Logs** — select a previously saved log entry
-   - **From Transaction ID** — paste a transaction ID directly
-3. The app fetches the transaction, decrypts the content, and offers a download
+| Service | Default |
+| --- | --- |
+| Overlay | `https://overlay-us-1.bsvb.tech` |
+| UHRP storage | `https://go-uhrp-us-1.bsvblockchain.tech` |
 
-### Verifying a File
+There is no `.env` configuration path for these settings. They are stored in browser `localStorage`, which the app clears on its normal quit flow. Custom service URLs therefore need to be set again after restarting.
 
-1. Navigate to **Verify**
-2. Select or drop the file you want to verify
-3. Click **Verify** — the app hashes the file and queries the overlay network
+## Try the file journey
 
-### Viewing Logs
+1. Open and unlock the wallet, then launch the application.
+2. Select a small, non-sensitive file. Choose whether an encrypted retrievable copy is needed.
+3. Select **Save to blockchain** and review both the transaction and storage outcomes.
+4. Use **Verify** with the same file to look for a matching overlay record.
+5. If the storage upload succeeded, open **Recall Files**, select its log or enter its UHRP URL, and save the decrypted result.
 
-Navigate to **Logs** to browse all saved transaction records.
+Recall requires the original wallet's cryptographic identity and the key identifier from the log or wallet-backed key-value mapping. A transaction ID by itself is not the current recall interface. UHRP availability depends on hosts and the requested retention period, so keep an independent copy of important files.
 
-## Project Structure
+Development logs are written to `LOGS/`; packaged applications use the `logs` directory inside Electron's application data directory. File creation and modification times in these logs come from the local filesystem. The renderer also logs selected file content during development, so use non-sensitive demonstration files.
 
-```
-desktop-file-integrity/
-├── src/
-│   ├── components/       # React components (homepage, recall, verify, logs, status, sidebar, topbar)
-│   └── css/              # Styling files
-├── context/              # React context providers (wallet, file)
-├── hooks/                # Blockchain logic (transactions.ts, FileHash.ts)
-├── utils/                # Queue handler
-├── types/                # Shared TypeScript types
-├── scripts/              # Build helper scripts
-├── electron/             # Electron main process (main.ts, preload.ts)
-└── public/               # Static assets
-```
+## Build and package
 
-## Available Scripts
+| Command | Purpose |
+| --- | --- |
+| `npm run build:electron` | Compile the Electron main and preload processes. |
+| `npm start` | Compile, build the renderer, create an unpacked application and launch it. |
+| `npm run build` | Build installers for the current platform. |
+| `npm run build:win` | Request Windows NSIS and portable targets. |
+| `npm run build:mac` | Request a macOS DMG. |
+| `npm run build:linux` | Request Linux AppImage and Debian targets. |
+| `npm run build:all` | Request all configured platform targets. |
+| `npm run lint` | Run ESLint. |
 
-| Script | Description |
-|---|---|
-| `npm run start` | Full production build + launch for current OS |
-| `npm run dev` | Start Vite renderer dev server only |
-| `npm run electron` | Compile TypeScript and launch Electron (requires `dev` running) |
-| `npm run build:electron` | Compile Electron main + preload TypeScript only |
-| `npm run build:win/mac/linux` | Build distributable installer for target platform |
-| `npm run build:all` | Build installers for all platforms |
-| `npm run lint` | Run ESLint |
+Packaging output goes to `release/`. Platform-specific toolchains and signing requirements still apply. The configuration references icons under `build/`, but those files are absent from this checkout. Compilation and renderer builds do not verify installer creation or the desktop wallet journey.
 
-## Security
+## Code map
 
-- Files are encrypted client-side using your wallet's key derivation before leaving your machine
-- A unique encryption key is derived per session
-- The encrypted file content is stored as transaction metadata; the file hash is stored in the locking script
-- Key-to-transaction mappings are stored locally via the wallet's key-value store
+- [context/fileContext.tsx](context/fileContext.tsx): file publication, optional upload and log creation.
+- [hooks/transactions.ts](hooks/transactions.ts): hash transactions and overlay lookup.
+- [utils/UHRPManager.ts](utils/UHRPManager.ts): encrypted upload, host resolution and download integrity checks.
+- [electron/main.ts](electron/main.ts): desktop window, file access and persistent logs.
 
-## Blockchain Integration
+## Licence
 
-- **BSV Blockchain** — immutable timestamping via Bitcoin SV
-- **Overlay Network** — file hash lookup via the `tm_fileintegrity` topic
-- **Transactions** — `OP_FALSE OP_RETURN` outputs carrying the file hash; encrypted content in metadata
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes
-4. Push and open a Pull Request
-
-## License
-
-MIT License — see the LICENSE file for details.
+See [LICENSE.md](LICENSE.md), which contains the Open BSV version 6 licence.

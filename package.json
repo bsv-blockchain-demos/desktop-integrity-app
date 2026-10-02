@@ -74,5 +74,6 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }

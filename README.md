@@ -94,4 +94,4 @@ Packaging output goes to `release/`. Platform-specific toolchains and signing re
 
 ## Licence
 
-See [LICENSE.md](LICENSE.md), which contains the Open BSV version 6 licence.
+**Open BSV Licence v6.** See [LICENSE.md](LICENSE.md) for the full terms.

@@ -31,7 +31,7 @@ export async function createTransaction(
             {
                 outputDescription: "File Integrity",
                 lockingScript: new FileHash().lock(bytes).toHex(),
-                satoshis: 1,
+                satoshis: 0,
             }
         ],
         options: {

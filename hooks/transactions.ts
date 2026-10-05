@@ -1,6 +1,7 @@
 import { LookupResolver, TopicBroadcaster, Transaction, Utils, WalletClient } from '@bsv/sdk';
 import { FileHash } from './FileHash';
 import { getOverlayUrl } from '../config/serviceConfig';
+import { toast } from 'react-hot-toast';
 
 interface OverlayOutput {
     beef: number[];
@@ -40,12 +41,12 @@ export async function createTransaction(
     }) as CreateActionResult;
 
     console.log("Transaction created:", { txid: response.txid, hasTx: !!response.tx });
-    broadcastTransaction(response);
+    broadcastTransaction(response, fileName);
 
     return response;
 }
 
-function broadcastTransaction(response: CreateActionResult): void {
+function broadcastTransaction(response: CreateActionResult, fileName: string): void {
     if (!response.tx) {
         console.error("No tx in response, cannot broadcast");
         return;
@@ -61,9 +62,31 @@ function broadcastTransaction(response: CreateActionResult): void {
     const tb = new TopicBroadcaster(['tm_desktopintegrity'], { resolver: overlay });
     const tx = Transaction.fromBEEF(response.tx);
     console.log("Broadcasting transaction:", tx);
-    tx.broadcast(tb)
-        .then(r => console.log("Overlay response:", r))
-        .catch(e => console.error("Error broadcasting to overlay:", e));
+    submitWithRetry(tx, tb, fileName);
+}
+
+// Overlay hosts intermittently reject valid transactions; resubmitting the same BEEF is idempotent.
+const SUBMIT_RETRY_DELAYS_MS = [2_000, 5_000, 15_000];
+
+async function submitWithRetry(tx: Transaction, tb: TopicBroadcaster, fileName: string): Promise<void> {
+    for (let attempt = 0; attempt <= SUBMIT_RETRY_DELAYS_MS.length; attempt++) {
+        try {
+            const r = await tx.broadcast(tb);
+            console.log("Overlay response:", r);
+            if (r.status === 'success') return;
+        } catch (e) {
+            console.error("Error broadcasting to overlay:", e);
+        }
+        if (attempt < SUBMIT_RETRY_DELAYS_MS.length) {
+            await new Promise(resolve => setTimeout(resolve, SUBMIT_RETRY_DELAYS_MS[attempt]));
+        }
+    }
+    console.error(`Overlay submission failed after ${SUBMIT_RETRY_DELAYS_MS.length + 1} attempts`);
+    toast.error(`${fileName} saved on-chain, but the overlay rejected it. \nIt may not show up in Verify.`, {
+        duration: 5000,
+        position: 'top-center',
+        id: `overlay-error-${fileName}`,
+    });
 }
 
 export async function getTransactionByFileHash(hash: number[]): Promise<OverlayQueryResult> {

@@ -18,7 +18,7 @@
   },
   "main": "dist-electron/electron/main.js",
   "dependencies": {
-    "@bsv/sdk": "^1.6.11",
+    "@bsv/sdk": "^2.8.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
